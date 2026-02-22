@@ -139,6 +139,7 @@ export type Database = {
           file_name: string
           file_path: string
           file_size: number | null
+          folder_id: string | null
           id: string
           service_request_id: string
           status: Database["public"]["Enums"]["document_status"]
@@ -150,6 +151,7 @@ export type Database = {
           file_name: string
           file_path: string
           file_size?: number | null
+          folder_id?: string | null
           id?: string
           service_request_id: string
           status?: Database["public"]["Enums"]["document_status"]
@@ -161,6 +163,7 @@ export type Database = {
           file_name?: string
           file_path?: string
           file_size?: number | null
+          folder_id?: string | null
           id?: string
           service_request_id?: string
           status?: Database["public"]["Enums"]["document_status"]
@@ -169,10 +172,55 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "documents_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "documents_service_request_id_fkey"
             columns: ["service_request_id"]
             isOneToOne: false
             referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      folders: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          parent_id: string | null
+          shared_with: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          parent_id?: string | null
+          shared_with?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          parent_id?: string | null
+          shared_with?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
             referencedColumns: ["id"]
           },
         ]
