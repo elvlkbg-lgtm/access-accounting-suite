@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, MessageCircle, ClipboardList, Users, Send, Upload, Download, Plus, Trash2, ExternalLink, Calendar, BarChart3 } from 'lucide-react';
+import { FileText, MessageCircle, ClipboardList, Users, Send, Upload, Plus, Trash2, ExternalLink, Calendar, BarChart3 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import MessagingPanel from '@/components/MessagingPanel';
+import DocumentManager from '@/components/DocumentManager';
 import { toast } from 'sonner';
 
 const SPECIALIZATIONS = ['Одит', 'Човешки ресурси', 'Данъци', 'Пълно счетоводство'];
@@ -25,9 +26,8 @@ export default function AccountantDashboard() {
   const [accountantProfile, setAccountantProfile] = useState<any>(null);
   const [requests, setRequests] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [documents, setDocuments] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Profile form
@@ -45,17 +45,23 @@ export default function AccountantDashboard() {
   const [newMessage, setNewMessage] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
 
-  // Consultation form
-  const [consultDate, setConsultDate] = useState('');
-  const [consultClientId, setConsultClientId] = useState('');
-
   useEffect(() => {
     if (user) fetchAll();
   }, [user]);
 
   const fetchAll = async () => {
     await fetchProfile();
+    await fetchUnread();
     setLoading(false);
+  };
+
+  const fetchUnread = async () => {
+    const { count } = await supabase
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('receiver_id', user!.id)
+      .eq('is_read', false);
+    setUnreadCount(count || 0);
   };
 
   const fetchProfile = async () => {
@@ -73,8 +79,6 @@ export default function AccountantDashboard() {
       await Promise.all([
         fetchRequests(data.id),
         fetchServices(data.id),
-        fetchMessages(),
-        fetchDocuments(data.id),
         fetchConsultations(data.id),
       ]);
     }
@@ -92,25 +96,6 @@ export default function AccountantDashboard() {
   const fetchServices = async (apId: string) => {
     const { data } = await supabase.from('services').select('*').eq('accountant_id', apId);
     setServices(data || []);
-  };
-
-  const fetchMessages = async () => {
-    const { data } = await supabase
-      .from('messages')
-      .select('*, sender:profiles!messages_sender_id_fkey(full_name)')
-      .or(`sender_id.eq.${user!.id},receiver_id.eq.${user!.id}`)
-      .order('created_at', { ascending: false })
-      .limit(50);
-    setMessages(data || []);
-  };
-
-  const fetchDocuments = async (apId: string) => {
-    const { data } = await supabase
-      .from('documents')
-      .select('*, service_requests!inner(accountant_id)')
-      .eq('service_requests.accountant_id', apId)
-      .order('created_at', { ascending: false });
-    setDocuments(data || []);
   };
 
   const fetchConsultations = async (apId: string) => {
@@ -159,19 +144,7 @@ export default function AccountantDashboard() {
       sender_id: user!.id, receiver_id: receiverId, service_request_id: requestId, content: newMessage,
     });
     setNewMessage('');
-    fetchMessages();
     toast.success('Изпратено');
-  };
-
-  const uploadDocument = async (requestId: string, file: File) => {
-    const path = `${user!.id}/${requestId}/${file.name}`;
-    const { error } = await supabase.storage.from('documents').upload(path, file);
-    if (error) { toast.error('Грешка при качване'); return; }
-    await supabase.from('documents').insert({
-      service_request_id: requestId, uploaded_by: user!.id, file_name: file.name, file_path: path, file_size: file.size,
-    });
-    toast.success('Документът е качен');
-    fetchDocuments(accountantProfile.id);
   };
 
   const statusLabels: Record<string, string> = {
@@ -198,7 +171,7 @@ export default function AccountantDashboard() {
           <Card><CardContent className="flex items-center gap-4 p-6"><Users className="h-8 w-8 text-primary" /><div><p className="text-2xl font-bold">{new Set(requests.map(r => r.client_id)).size}</p><p className="text-sm text-muted-foreground">Клиенти</p></div></CardContent></Card>
           <Card><CardContent className="flex items-center gap-4 p-6"><ClipboardList className="h-8 w-8 text-primary" /><div><p className="text-2xl font-bold">{requests.filter(r => r.status !== 'completed' && r.status !== 'rejected').length}</p><p className="text-sm text-muted-foreground">Активни заявки</p></div></CardContent></Card>
           <Card><CardContent className="flex items-center gap-4 p-6"><BarChart3 className="h-8 w-8 text-primary" /><div><p className="text-2xl font-bold">{requests.filter(r => r.status === 'completed').length}</p><p className="text-sm text-muted-foreground">Завършени</p></div></CardContent></Card>
-          <Card><CardContent className="flex items-center gap-4 p-6"><MessageCircle className="h-8 w-8 text-primary" /><div><p className="text-2xl font-bold">{messages.filter(m => !m.is_read && m.receiver_id === user!.id).length}</p><p className="text-sm text-muted-foreground">Нови съобщения</p></div></CardContent></Card>
+          <Card><CardContent className="flex items-center gap-4 p-6"><MessageCircle className="h-8 w-8 text-primary" /><div><p className="text-2xl font-bold">{unreadCount}</p><p className="text-sm text-muted-foreground">Нови съобщения</p></div></CardContent></Card>
         </div>
 
         <Tabs defaultValue="requests">
@@ -236,10 +209,6 @@ export default function AccountantDashboard() {
                     <Button size="sm" variant="outline" onClick={() => setSelectedRequest(selectedRequest?.id === r.id ? null : r)}>
                       <MessageCircle className="mr-1 h-3 w-3" /> Съобщение
                     </Button>
-                    <label className="cursor-pointer">
-                      <Button size="sm" variant="outline" asChild><span><Upload className="mr-1 h-3 w-3" /> Качи документ</span></Button>
-                      <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && uploadDocument(r.id, e.target.files[0])} />
-                    </label>
                   </div>
                   {selectedRequest?.id === r.id && (
                     <div className="mt-3 flex gap-2">
@@ -304,43 +273,12 @@ export default function AccountantDashboard() {
             ))}
           </TabsContent>
 
-          <TabsContent value="messages" className="mt-4 space-y-3">
-            {messages.map((m) => (
-              <Card key={m.id} className={m.sender_id === user!.id ? 'border-primary/20' : ''}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">{(m.sender as any)?.full_name || 'Потребител'}</p>
-                    <span className="text-xs text-muted-foreground">{new Date(m.created_at).toLocaleString('bg-BG')}</span>
-                  </div>
-                  <p className="mt-1 text-sm">{m.content}</p>
-                </CardContent>
-              </Card>
-            ))}
-            {messages.length === 0 && <p className="text-center text-muted-foreground py-8">Няма съобщения.</p>}
+          <TabsContent value="messages" className="mt-4">
+            <MessagingPanel />
           </TabsContent>
 
-          <TabsContent value="documents" className="mt-4 space-y-3">
-            {documents.map((d) => (
-              <Card key={d.id}>
-                <CardContent className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-medium">{d.file_name}</p>
-                      <p className="text-xs text-muted-foreground">{new Date(d.created_at).toLocaleString('bg-BG')}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary">{d.status}</Badge>
-                    <Button size="icon" variant="ghost" onClick={async () => {
-                      const { data } = await supabase.storage.from('documents').download(d.file_path);
-                      if (data) { const url = URL.createObjectURL(data); const a = document.createElement('a'); a.href = url; a.download = d.file_name; a.click(); }
-                    }}><Download className="h-4 w-4" /></Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-            {documents.length === 0 && <p className="text-center text-muted-foreground py-8">Няма документи.</p>}
+          <TabsContent value="documents" className="mt-4">
+            <DocumentManager />
           </TabsContent>
 
           <TabsContent value="consultations" className="mt-4 space-y-4">
