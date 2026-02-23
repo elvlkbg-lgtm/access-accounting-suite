@@ -55,7 +55,12 @@ export default function SearchAccountants() {
       supabase.from('auditor_directory').select('id, full_name, city, specialization, qualification, ides_number'),
     ]);
     setAccountants((accRes.data as any) || []);
-    setDirectory((dirRes.data as any) || []);
+    const dirData = (dirRes.data as any) || [];
+    setDirectory(dirData);
+    // Extract unique cities
+    const uniqueCities = [...new Set(dirData.map((d: any) => d.city).filter(Boolean))] as string[];
+    uniqueCities.sort((a, b) => a.localeCompare(b, 'bg'));
+    setCities(uniqueCities);
     setLoading(false);
   };
 
@@ -110,7 +115,7 @@ export default function SearchAccountants() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Всички градове</SelectItem>
-              {CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              {cities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={specFilter} onValueChange={setSpecFilter}>
