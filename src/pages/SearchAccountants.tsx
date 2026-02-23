@@ -31,7 +31,6 @@ interface DirectoryEntry {
   ides_number: string | null;
 }
 
-const CITIES = ['София', 'Пловдив', 'Варна', 'Бургас', 'Русе', 'Стара Загора', 'Плевен', 'Велико Търново', 'Благоевград', 'Кърджали'];
 const SPECIALIZATIONS = ['Одит', 'Човешки ресурси', 'Данъчно обслужване', 'Пълно счетоводство'];
 
 export default function SearchAccountants() {
@@ -42,6 +41,7 @@ export default function SearchAccountants() {
   const [specFilter, setSpecFilter] = useState('all');
   const [accountants, setAccountants] = useState<AccountantProfile[]>([]);
   const [directory, setDirectory] = useState<DirectoryEntry[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
