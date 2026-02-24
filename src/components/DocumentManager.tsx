@@ -132,15 +132,11 @@ export default function DocumentManager() {
   };
 
   const uploadDocument = async (file: File) => {
-    if (!selectedRequestForUpload) {
-      toast.error('Моля изберете заявка за документа');
-      return;
-    }
-    const path = `${user!.id}/${currentFolder || 'root'}/${file.name}`;
+    const path = `${user!.id}/${currentFolder || 'root'}/${Date.now()}_${file.name}`;
     const { error: uploadError } = await supabase.storage.from('documents').upload(path, file);
     if (uploadError) { toast.error('Грешка при качване'); return; }
     const insertData: any = {
-      service_request_id: selectedRequestForUpload,
+      service_request_id: (selectedRequestForUpload && selectedRequestForUpload !== 'none') ? selectedRequestForUpload : null,
       uploaded_by: user!.id,
       file_name: file.name,
       file_path: path,
@@ -241,9 +237,10 @@ export default function DocumentManager() {
             <div>
               <Select value={selectedRequestForUpload} onValueChange={setSelectedRequestForUpload}>
                 <SelectTrigger className="w-[180px] h-9 text-xs">
-                  <SelectValue placeholder="Избери заявка" />
+                  <SelectValue placeholder="Заявка (опц.)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Без заявка</SelectItem>
                   {serviceRequests.map(sr => (
                     <SelectItem key={sr.id} value={sr.id}>
                       {sr.description?.slice(0, 30) || sr.id.slice(0, 8)}

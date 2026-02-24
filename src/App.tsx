@@ -13,6 +13,7 @@ import AccountantProfilePage from "./pages/AccountantProfilePage";
 import ClientDashboard from "./pages/ClientDashboard";
 import AccountantDashboard from "./pages/AccountantDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import Services from "./pages/Services";
 
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/services" element={<Services />} />
             <Route path="/search" element={<SearchAccountants />} />
             <Route path="/accountant-profile/:id" element={<AccountantProfilePage />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/client" element={<ProtectedRoute requiredRole="client"><ClientDashboard /></ProtectedRoute>} />
             <Route path="/accountant" element={<ProtectedRoute requiredRole="accountant"><AccountantDashboard /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />

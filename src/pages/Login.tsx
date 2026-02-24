@@ -24,11 +24,15 @@ export default function Login() {
       toast.error(error.message);
     } else {
       toast.success('Успешен вход!');
-      // Role-based redirect handled by App routing
-      const { data } = await supabase.from('user_roles').select('role').limit(1).single();
-      if (data?.role === 'admin') navigate('/admin');
-      else if (data?.role === 'accountant') navigate('/accountant');
-      else navigate('/client');
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) {
+        navigate('/dashboard');
+      } else {
+        const { data } = await supabase.from('user_roles').select('role').limit(1).single();
+        if (data?.role === 'admin') navigate('/admin');
+        else if (data?.role === 'accountant') navigate('/accountant');
+        else navigate('/client');
+      }
     }
   };
 

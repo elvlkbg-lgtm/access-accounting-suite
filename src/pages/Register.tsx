@@ -29,7 +29,7 @@ export default function Register() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: fullName },
+        data: { full_name: fullName, role },
       },
     });
 
@@ -39,20 +39,8 @@ export default function Register() {
       return;
     }
 
-    if (role === 'accountant') {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from('accountant_profiles').insert({
-          user_id: user.id,
-          specialization: [],
-          bio: '',
-          experience_years: 0,
-        });
-      }
-    }
-
-    toast.success('Регистрацията е успешна!');
-    navigate(role === 'accountant' ? '/accountant' : '/client');
+    toast.success('Регистрацията е успешна! Проверете имейла си за потвърждение.');
+    navigate('/login');
     setLoading(false);
   };
 

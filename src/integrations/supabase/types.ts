@@ -141,7 +141,7 @@ export type Database = {
           file_size: number | null
           folder_id: string | null
           id: string
-          service_request_id: string
+          service_request_id: string | null
           status: Database["public"]["Enums"]["document_status"]
           updated_at: string
           uploaded_by: string
@@ -153,7 +153,7 @@ export type Database = {
           file_size?: number | null
           folder_id?: string | null
           id?: string
-          service_request_id: string
+          service_request_id?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           updated_at?: string
           uploaded_by: string
@@ -165,7 +165,7 @@ export type Database = {
           file_size?: number | null
           folder_id?: string | null
           id?: string
-          service_request_id?: string
+          service_request_id?: string | null
           status?: Database["public"]["Enums"]["document_status"]
           updated_at?: string
           uploaded_by?: string

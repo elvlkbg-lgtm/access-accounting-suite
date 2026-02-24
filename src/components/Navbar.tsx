@@ -10,6 +10,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const getDashboardPath = () => {
+    if (window.innerWidth < 768) return '/dashboard';
     if (hasRole('admin')) return '/admin';
     if (hasRole('accountant')) return '/accountant';
     return '/client';
