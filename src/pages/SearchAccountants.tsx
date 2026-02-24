@@ -19,7 +19,7 @@ interface AccountantProfile {
   experience_years: number;
   location: string | null;
   rating: number;
-  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  full_name?: string;
 }
 
 interface DirectoryEntry {
@@ -51,10 +51,18 @@ export default function SearchAccountants() {
   const fetchAll = async () => {
     setLoading(true);
     const [accRes, dirRes] = await Promise.all([
-      supabase.from('accountant_profiles').select('*, profiles(full_name, avatar_url)').eq('is_approved', true),
+      supabase.from('accountant_profiles').select('id, user_id, specialization, bio, experience_years, location, rating, is_approved').eq('is_approved', true),
       supabase.from('auditor_directory').select('id, full_name, city, specialization, qualification, ides_number'),
     ]);
-    setAccountants((accRes.data as any) || []);
+    const accData = (accRes.data as any[]) || [];
+    // Fetch profile names for accountants
+    if (accData.length > 0) {
+      const userIds = accData.map((a: any) => a.user_id);
+      const { data: profiles } = await supabase.from('profiles').select('id, full_name').in('id', userIds);
+      const nameMap = new Map((profiles || []).map((p: any) => [p.id, p.full_name]));
+      accData.forEach((a: any) => { a.full_name = nameMap.get(a.user_id) || 'Счетоводител'; });
+    }
+    setAccountants(accData);
     const dirData = (dirRes.data as any) || [];
     setDirectory(dirData);
     // Extract unique cities
@@ -70,7 +78,7 @@ export default function SearchAccountants() {
       a.specialization?.some((s) => s.toLowerCase().includes(q)) ||
       a.bio?.toLowerCase().includes(q) ||
       a.location?.toLowerCase().includes(q) ||
-      (a.profiles as any)?.full_name?.toLowerCase().includes(q);
+      a.full_name?.toLowerCase().includes(q);
     const matchesCity = cityFilter === 'all' || a.location?.includes(cityFilter);
     const matchesSpec = specFilter === 'all' || a.specialization?.includes(specFilter);
     return matchesQuery && matchesCity && matchesSpec;
@@ -192,10 +200,10 @@ export default function SearchAccountants() {
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
-                              {(a.profiles as any)?.full_name?.[0] || '?'}
+                              {a.full_name?.[0] || '?'}
                             </div>
                             <div>
-                              <h3 className="font-semibold">{(a.profiles as any)?.full_name || 'Счетоводител'}</h3>
+                              <h3 className="font-semibold">{a.full_name || 'Счетоводител'}</h3>
                               {a.location && (
                                 <p className="flex items-center gap-1 text-xs text-muted-foreground">
                                   <MapPin className="h-3 w-3" /> {a.location}
