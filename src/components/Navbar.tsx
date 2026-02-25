@@ -40,6 +40,15 @@ export default function Navbar() {
           <Link to="/search" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Търси счетоводител
           </Link>
+          <Link to="/blog" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Блог
+          </Link>
+          <Link to="/calculators" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Калкулатори
+          </Link>
+          <Link to="/consultations" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Консултации
+          </Link>
           {user ? (
             <>
               <Link to={getDashboardPath()} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -73,6 +82,9 @@ export default function Navbar() {
           <Link to="/" className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Начало</Link>
           <Link to="/services" className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Услуги и цени</Link>
           <Link to="/search" className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Търси счетоводител</Link>
+          <Link to="/blog" className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Блог</Link>
+          <Link to="/calculators" className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Калкулатори</Link>
+          <Link to="/consultations" className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Консултации</Link>
           {user ? (
             <>
               <Link to={getDashboardPath()} className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Табло</Link>

@@ -16,6 +16,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import Services from "./pages/Services";
+import Blog from "./pages/Blog";
+import Calculators from "./pages/Calculators";
+import Consultations from "./pages/Consultations";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +34,9 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/calculators" element={<Calculators />} />
+            <Route path="/consultations" element={<Consultations />} />
             <Route path="/search" element={<SearchAccountants />} />
             <Route path="/accountant-profile/:id" element={<AccountantProfilePage />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
