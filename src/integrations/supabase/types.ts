@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           bio: string | null
           created_at: string
+          display_name: string | null
           experience_years: number | null
           id: string
           is_approved: boolean
@@ -30,6 +31,7 @@ export type Database = {
         Insert: {
           bio?: string | null
           created_at?: string
+          display_name?: string | null
           experience_years?: number | null
           id?: string
           is_approved?: boolean
@@ -42,6 +44,7 @@ export type Database = {
         Update: {
           bio?: string | null
           created_at?: string
+          display_name?: string | null
           experience_years?: number | null
           id?: string
           is_approved?: boolean
@@ -63,6 +66,7 @@ export type Database = {
           ides_number: string | null
           phone: string | null
           qualification: string | null
+          source: string
           source_url: string | null
           specialization: string[] | null
         }
@@ -75,6 +79,7 @@ export type Database = {
           ides_number?: string | null
           phone?: string | null
           qualification?: string | null
+          source?: string
           source_url?: string | null
           specialization?: string[] | null
         }
@@ -87,6 +92,7 @@ export type Database = {
           ides_number?: string | null
           phone?: string | null
           qualification?: string | null
+          source?: string
           source_url?: string | null
           specialization?: string[] | null
         }
