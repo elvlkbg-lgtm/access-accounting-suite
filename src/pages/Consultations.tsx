@@ -1,0 +1,229 @@
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Video, Calendar, Clock, User, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { useNavigate } from 'react-router-dom';
+
+interface AccountantOption {
+  id: string;
+  display_name: string | null;
+  specialization: string[] | null;
+  user_id: string;
+  profiles?: { full_name: string | null } | null;
+}
+
+export default function Consultations() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [accountants, setAccountants] = useState<AccountantOption[]>([]);
+  const [selectedAccountant, setSelectedAccountant] = useState('');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const [duration, setDuration] = useState('60');
+  const [notes, setNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [myConsultations, setMyConsultations] = useState<any[]>([]);
+  const [booked, setBooked] = useState(false);
+
+  useEffect(() => {
+    fetchAccountants();
+    if (user) fetchMyConsultations();
+  }, [user]);
+
+  const fetchAccountants = async () => {
+    const { data } = await supabase
+      .from('accountant_profiles')
+      .select('id, display_name, specialization, user_id')
+      .eq('is_approved', true)
+      .limit(50);
+    setAccountants((data as any[]) || []);
+  };
+
+  const fetchMyConsultations = async () => {
+    const { data } = await supabase
+      .from('consultations')
+      .select('*, accountant_profiles:accountant_id(display_name, profiles(full_name))')
+      .eq('client_id', user!.id)
+      .order('scheduled_at', { ascending: false });
+    setMyConsultations(data || []);
+  };
+
+  const handleBook = async () => {
+    if (!user) { navigate('/login'); return; }
+    if (!selectedAccountant || !date || !time) {
+      toast.error('Моля, попълнете всички полета');
+      return;
+    }
+    setSubmitting(true);
+    const scheduledAt = new Date(`${date}T${time}`).toISOString();
+    const { error } = await supabase.from('consultations').insert({
+      accountant_id: selectedAccountant,
+      client_id: user.id,
+      scheduled_at: scheduledAt,
+      duration_minutes: parseInt(duration),
+      notes: notes || null,
+    });
+    setSubmitting(false);
+    if (error) {
+      toast.error('Грешка при запазване на консултация');
+    } else {
+      toast.success('Консултацията е запазена успешно!');
+      setBooked(true);
+      setNotes('');
+      setDate('');
+      setTime('');
+      fetchMyConsultations();
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    const map: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+      scheduled: { label: 'Насрочена', variant: 'default' },
+      completed: { label: 'Завършена', variant: 'secondary' },
+      cancelled: { label: 'Отказана', variant: 'destructive' },
+    };
+    return map[status] || { label: status, variant: 'outline' as const };
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
+      <main className="container mx-auto flex-1 px-4 py-10">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold md:text-4xl">Онлайн консултации</h1>
+          <p className="mt-2 text-muted-foreground">Запазете час за видео консултация с професионален счетоводител</p>
+        </div>
+
+        <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-2">
+          {/* Booking form */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Video className="h-5 w-5 text-primary" />
+                Запази консултация
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {booked ? (
+                <div className="flex flex-col items-center gap-4 py-8 text-center">
+                  <CheckCircle className="h-12 w-12 text-primary" />
+                  <h3 className="text-lg font-semibold">Консултацията е запазена!</h3>
+                  <p className="text-sm text-muted-foreground">Ще получите потвърждение от счетоводителя.</p>
+                  <Button onClick={() => setBooked(false)}>Запази нова</Button>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label>Счетоводител</Label>
+                    <Select value={selectedAccountant} onValueChange={setSelectedAccountant}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Изберете счетоводител" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {accountants.map((a) => (
+                          <SelectItem key={a.id} value={a.id}>
+                            {a.display_name || (a.profiles as any)?.full_name || 'Счетоводител'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Дата</Label>
+                      <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Час</Label>
+                      <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Продължителност</Label>
+                    <Select value={duration} onValueChange={setDuration}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="30">30 минути</SelectItem>
+                        <SelectItem value="60">60 минути</SelectItem>
+                        <SelectItem value="90">90 минути</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Бележки (по избор)</Label>
+                    <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Опишете темата на консултацията..." rows={3} />
+                  </div>
+                  <Button className="w-full" onClick={handleBook} disabled={submitting}>
+                    {submitting ? 'Запазване...' : 'Запази консултация'}
+                  </Button>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* My consultations */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                Моите консултации
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!user ? (
+                <div className="py-8 text-center">
+                  <p className="text-muted-foreground">Влезте в акаунта си, за да видите консултациите.</p>
+                  <Button className="mt-4" onClick={() => navigate('/login')}>Вход</Button>
+                </div>
+              ) : myConsultations.length === 0 ? (
+                <p className="py-8 text-center text-muted-foreground">Нямате насрочени консултации.</p>
+              ) : (
+                <div className="space-y-3">
+                  {myConsultations.map((c) => {
+                    const status = getStatusLabel(c.status);
+                    const accName = (c.accountant_profiles as any)?.display_name || (c.accountant_profiles as any)?.profiles?.full_name || 'Счетоводител';
+                    return (
+                      <div key={c.id} className="rounded-lg border p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-2 text-sm font-medium">
+                            <User className="h-4 w-4 text-muted-foreground" /> {accName}
+                          </span>
+                          <Badge variant={status.variant}>{status.label}</Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(c.scheduled_at).toLocaleDateString('bg-BG')}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {new Date(c.scheduled_at).toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          <span>{c.duration_minutes} мин.</span>
+                        </div>
+                        {c.notes && <p className="text-xs text-muted-foreground">{c.notes}</p>}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
