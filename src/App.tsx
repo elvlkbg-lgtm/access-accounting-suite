@@ -19,6 +19,7 @@ import Services from "./pages/Services";
 import Blog from "./pages/Blog";
 import Calculators from "./pages/Calculators";
 import Consultations from "./pages/Consultations";
+import ContactAccountant from "./pages/ContactAccountant";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/consultations" element={<Consultations />} />
             <Route path="/search" element={<SearchAccountants />} />
             <Route path="/accountant-profile/:id" element={<AccountantProfilePage />} />
+            <Route path="/contact-accountant/:id" element={<ContactAccountant />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/client" element={<ProtectedRoute requiredRole="client"><ClientDashboard /></ProtectedRoute>} />
             <Route path="/accountant" element={<ProtectedRoute requiredRole="accountant"><AccountantDashboard /></ProtectedRoute>} />

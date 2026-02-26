@@ -14,18 +14,17 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useNavigate } from 'react-router-dom';
 
-interface AccountantOption {
+interface PlatformAccountant {
   id: string;
-  display_name: string | null;
+  full_name: string;
   specialization: string[] | null;
-  user_id: string;
-  profiles?: { full_name: string | null } | null;
+  city: string | null;
 }
 
 export default function Consultations() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [accountants, setAccountants] = useState<AccountantOption[]>([]);
+  const [accountants, setAccountants] = useState<PlatformAccountant[]>([]);
   const [selectedAccountant, setSelectedAccountant] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
@@ -41,18 +40,19 @@ export default function Consultations() {
   }, [user]);
 
   const fetchAccountants = async () => {
+    // Load platform accountants from auditor_directory
     const { data } = await supabase
-      .from('accountant_profiles')
-      .select('id, display_name, specialization, user_id')
-      .eq('is_approved', true)
-      .limit(50);
-    setAccountants((data as any[]) || []);
+      .from('auditor_directory')
+      .select('id, full_name, specialization, city')
+      .eq('source', 'platform')
+      .order('full_name');
+    setAccountants((data as PlatformAccountant[]) || []);
   };
 
   const fetchMyConsultations = async () => {
     const { data } = await supabase
       .from('consultations')
-      .select('*, accountant_profiles:accountant_id(display_name, profiles(full_name))')
+      .select('*')
       .eq('client_id', user!.id)
       .order('scheduled_at', { ascending: false });
     setMyConsultations(data || []);
@@ -95,13 +95,19 @@ export default function Consultations() {
     return map[status] || { label: status, variant: 'outline' as const };
   };
 
+  // Find the selected accountant name for display in my consultations
+  const getAccountantName = (accountantId: string) => {
+    const acc = accountants.find(a => a.id === accountantId);
+    return acc?.full_name || 'Счетоводител';
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="container mx-auto flex-1 px-4 py-10">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold md:text-4xl">Онлайн консултации</h1>
-          <p className="mt-2 text-muted-foreground">Запазете час за видео консултация с професионален счетоводител</p>
+          <p className="mt-2 text-muted-foreground">Запазете час за видео консултация с професионален счетоводител от платформата</p>
         </div>
 
         <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-2">
@@ -124,7 +130,7 @@ export default function Consultations() {
               ) : (
                 <>
                   <div className="space-y-2">
-                    <Label>Счетоводител</Label>
+                    <Label>Счетоводител ({accountants.length} налични)</Label>
                     <Select value={selectedAccountant} onValueChange={setSelectedAccountant}>
                       <SelectTrigger>
                         <SelectValue placeholder="Изберете счетоводител" />
@@ -132,7 +138,7 @@ export default function Consultations() {
                       <SelectContent>
                         {accountants.map((a) => (
                           <SelectItem key={a.id} value={a.id}>
-                            {a.display_name || (a.profiles as any)?.full_name || 'Счетоводител'}
+                            {a.full_name}{a.city ? ` — ${a.city}` : ''}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -193,12 +199,11 @@ export default function Consultations() {
                 <div className="space-y-3">
                   {myConsultations.map((c) => {
                     const status = getStatusLabel(c.status);
-                    const accName = (c.accountant_profiles as any)?.display_name || (c.accountant_profiles as any)?.profiles?.full_name || 'Счетоводител';
                     return (
                       <div key={c.id} className="rounded-lg border p-4 space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-2 text-sm font-medium">
-                            <User className="h-4 w-4 text-muted-foreground" /> {accName}
+                            <User className="h-4 w-4 text-muted-foreground" /> {getAccountantName(c.accountant_id)}
                           </span>
                           <Badge variant={status.variant}>{status.label}</Badge>
                         </div>

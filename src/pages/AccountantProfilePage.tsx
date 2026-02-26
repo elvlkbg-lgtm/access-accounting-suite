@@ -104,7 +104,7 @@ export default function AccountantProfilePage() {
                           <p className="font-medium">{s.name}</p>
                           {s.description && <p className="text-sm text-muted-foreground">{s.description}</p>}
                         </div>
-                        <span className="font-semibold text-primary">{Number(s.price).toFixed(2)} лв.</span>
+                        <span className="font-semibold text-primary">{Number(s.price).toFixed(2)} €</span>
                       </div>
                     ))}
                   </div>
@@ -127,7 +127,7 @@ export default function AccountantProfilePage() {
                           onClick={() => setSelectedService(selectedService === s.id ? null : s.id)}
                           className={`w-full rounded-lg border p-3 text-left text-sm transition-colors ${selectedService === s.id ? 'border-primary bg-primary/5' : 'hover:border-primary/30'}`}
                         >
-                          {s.name} — {Number(s.price).toFixed(2)} лв.
+                          {s.name} — {Number(s.price).toFixed(2)} €
                         </button>
                       ))}
                     </div>

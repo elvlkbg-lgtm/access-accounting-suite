@@ -35,33 +35,33 @@ function SalaryCalculator() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Брутна заплата (лв.)</Label>
-        <Input type="number" value={gross} onChange={(e) => setGross(e.target.value)} placeholder="Напр. 2500" />
+        <Label>Брутна заплата (€)</Label>
+        <Input type="number" value={gross} onChange={(e) => setGross(e.target.value)} placeholder="Напр. 1500" />
       </div>
       <Button onClick={calculate} disabled={!gross} className="w-full">Изчисли</Button>
       {result && (
         <div className="mt-4 space-y-3 rounded-lg border bg-card p-4">
           <h4 className="font-semibold">Резултат</h4>
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <span className="text-muted-foreground">ДОО (служител):</span><span>{result.pension.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">ЗО (служител):</span><span>{result.health.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">ДЗПО + безработица:</span><span>{result.unemployment.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">Общо осигуровки:</span><span className="font-medium">{result.totalEmployee.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">Данъчна основа:</span><span>{result.taxBase.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">Данък (10%):</span><span>{result.incomeTax.toFixed(2)} лв.</span>
+            <span className="text-muted-foreground">ДОО (служител):</span><span>{result.pension.toFixed(2)} €</span>
+            <span className="text-muted-foreground">ЗО (служител):</span><span>{result.health.toFixed(2)} €</span>
+            <span className="text-muted-foreground">ДЗПО + безработица:</span><span>{result.unemployment.toFixed(2)} €</span>
+            <span className="text-muted-foreground">Общо осигуровки:</span><span className="font-medium">{result.totalEmployee.toFixed(2)} €</span>
+            <span className="text-muted-foreground">Данъчна основа:</span><span>{result.taxBase.toFixed(2)} €</span>
+            <span className="text-muted-foreground">Данък (10%):</span><span>{result.incomeTax.toFixed(2)} €</span>
           </div>
           <div className="border-t pt-3">
             <div className="flex items-center justify-between text-lg font-bold text-primary">
               <span>Нетна заплата:</span>
-              <span>{result.net.toFixed(2)} лв.</span>
+              <span>{result.net.toFixed(2)} €</span>
             </div>
           </div>
           <div className="border-t pt-3 text-sm">
             <div className="flex justify-between text-muted-foreground">
-              <span>Осигуровки работодател:</span><span>{result.totalEmployer.toFixed(2)} лв.</span>
+              <span>Осигуровки работодател:</span><span>{result.totalEmployer.toFixed(2)} €</span>
             </div>
             <div className="flex justify-between font-medium">
-              <span>Обща цена за работодател:</span><span>{result.totalCost.toFixed(2)} лв.</span>
+              <span>Обща цена за работодател:</span><span>{result.totalCost.toFixed(2)} €</span>
             </div>
           </div>
         </div>
@@ -90,29 +90,29 @@ function TaxCalculator() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Приходи (лв.)</Label>
-        <Input type="number" value={income} onChange={(e) => setIncome(e.target.value)} placeholder="Напр. 100000" />
+        <Label>Приходи (€)</Label>
+        <Input type="number" value={income} onChange={(e) => setIncome(e.target.value)} placeholder="Напр. 50000" />
       </div>
       <div className="space-y-2">
-        <Label>Разходи (лв.)</Label>
-        <Input type="number" value={expenses} onChange={(e) => setExpenses(e.target.value)} placeholder="Напр. 60000" />
+        <Label>Разходи (€)</Label>
+        <Input type="number" value={expenses} onChange={(e) => setExpenses(e.target.value)} placeholder="Напр. 30000" />
       </div>
       <Button onClick={calculate} disabled={!income} className="w-full">Изчисли</Button>
       {result && (
         <div className="mt-4 space-y-3 rounded-lg border bg-card p-4">
           <h4 className="font-semibold">Резултат</h4>
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <span className="text-muted-foreground">Данъчна основа:</span><span>{result.taxBase.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">Корпоративен данък (10%):</span><span>{result.corporateTax.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">Нетна печалба:</span><span>{result.netProfit.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">Данък дивидент (5%):</span><span>{result.dividendTax.toFixed(2)} лв.</span>
+            <span className="text-muted-foreground">Данъчна основа:</span><span>{result.taxBase.toFixed(2)} €</span>
+            <span className="text-muted-foreground">Корпоративен данък (10%):</span><span>{result.corporateTax.toFixed(2)} €</span>
+            <span className="text-muted-foreground">Нетна печалба:</span><span>{result.netProfit.toFixed(2)} €</span>
+            <span className="text-muted-foreground">Данък дивидент (5%):</span><span>{result.dividendTax.toFixed(2)} €</span>
           </div>
           <div className="border-t pt-3">
             <div className="flex items-center justify-between text-lg font-bold text-primary">
               <span>Чиста сума след данъци:</span>
-              <span>{result.afterTax.toFixed(2)} лв.</span>
+              <span>{result.afterTax.toFixed(2)} €</span>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">Общо данъци: {result.totalTax.toFixed(2)} лв.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Общо данъци: {result.totalTax.toFixed(2)} €</p>
           </div>
         </div>
       )}
@@ -143,8 +143,8 @@ function FreelancerCalculator() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Годишен доход (лв.)</Label>
-        <Input type="number" value={income} onChange={(e) => setIncome(e.target.value)} placeholder="Напр. 50000" />
+        <Label>Годишен доход (€)</Label>
+        <Input type="number" value={income} onChange={(e) => setIncome(e.target.value)} placeholder="Напр. 25000" />
       </div>
       <div className="space-y-2">
         <Label>Нормативно признати разходи (%)</Label>
@@ -161,16 +161,16 @@ function FreelancerCalculator() {
         <div className="mt-4 space-y-3 rounded-lg border bg-card p-4">
           <h4 className="font-semibold">Резултат</h4>
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <span className="text-muted-foreground">Признати разходи:</span><span>{result.recognizedExpenses.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">Данъчна основа:</span><span>{result.taxBase.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">Здравни осигуровки:</span><span>{result.healthInsurance.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">Пенсионни осигуровки:</span><span>{result.pensionInsurance.toFixed(2)} лв.</span>
-            <span className="text-muted-foreground">Данък (10%):</span><span>{result.incomeTax.toFixed(2)} лв.</span>
+            <span className="text-muted-foreground">Признати разходи:</span><span>{result.recognizedExpenses.toFixed(2)} €</span>
+            <span className="text-muted-foreground">Данъчна основа:</span><span>{result.taxBase.toFixed(2)} €</span>
+            <span className="text-muted-foreground">Здравни осигуровки:</span><span>{result.healthInsurance.toFixed(2)} €</span>
+            <span className="text-muted-foreground">Пенсионни осигуровки:</span><span>{result.pensionInsurance.toFixed(2)} €</span>
+            <span className="text-muted-foreground">Данък (10%):</span><span>{result.incomeTax.toFixed(2)} €</span>
           </div>
           <div className="border-t pt-3">
             <div className="flex items-center justify-between text-lg font-bold text-primary">
               <span>Нетен доход:</span>
-              <span>{result.net.toFixed(2)} лв.</span>
+              <span>{result.net.toFixed(2)} €</span>
             </div>
           </div>
         </div>

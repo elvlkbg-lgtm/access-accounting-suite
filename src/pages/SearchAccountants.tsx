@@ -158,11 +158,14 @@ export default function SearchAccountants() {
                           ))}
                         </div>
                         {d.qualification && <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{d.qualification}</p>}
-                        {d.email && (
-                          <Button className="mt-4 w-full" size="sm" variant="outline" onClick={() => window.location.href = `mailto:${d.email}`}>
+                        <div className="mt-4 flex gap-2">
+                          <Button className="flex-1" size="sm" onClick={() => navigate(`/contact-accountant/${d.id}`)}>
                             Свържи се
                           </Button>
-                        )}
+                          <Button size="sm" variant="outline" onClick={() => navigate('/consultations')}>
+                            Консултация
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
