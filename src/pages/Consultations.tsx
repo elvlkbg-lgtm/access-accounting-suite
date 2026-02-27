@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Video, Calendar, Clock, User, CheckCircle } from 'lucide-react';
+import { Video, Calendar, Clock, User, CheckCircle, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -26,7 +26,8 @@ export default function Consultations() {
   const navigate = useNavigate();
   const [accountants, setAccountants] = useState<PlatformAccountant[]>([]);
   const [selectedAccountant, setSelectedAccountant] = useState('');
-  const [date, setDate] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [time, setTime] = useState('');
   const [duration, setDuration] = useState('60');
   const [notes, setNotes] = useState('');
@@ -40,7 +41,6 @@ export default function Consultations() {
   }, [user]);
 
   const fetchAccountants = async () => {
-    // Load platform accountants from auditor_directory
     const { data } = await supabase
       .from('auditor_directory')
       .select('id, full_name, specialization, city')
@@ -60,12 +60,14 @@ export default function Consultations() {
 
   const handleBook = async () => {
     if (!user) { navigate('/login'); return; }
-    if (!selectedAccountant || !date || !time) {
-      toast.error('Моля, попълнете всички полета');
+    if (!selectedAccountant || !dateFrom || !time) {
+      toast.error('Моля, попълнете всички задължителни полета');
       return;
     }
     setSubmitting(true);
-    const scheduledAt = new Date(`${date}T${time}`).toISOString();
+    const scheduledAt = new Date(`${dateFrom}T${time}`).toISOString();
+
+    // Insert consultation
     const { error } = await supabase.from('consultations').insert({
       accountant_id: selectedAccountant,
       client_id: user.id,
@@ -73,17 +75,32 @@ export default function Consultations() {
       duration_minutes: parseInt(duration),
       notes: notes || null,
     });
-    setSubmitting(false);
+
     if (error) {
       toast.error('Грешка при запазване на консултация');
-    } else {
-      toast.success('Консултацията е запазена успешно!');
-      setBooked(true);
-      setNotes('');
-      setDate('');
-      setTime('');
-      fetchMyConsultations();
+      setSubmitting(false);
+      return;
     }
+
+    // Send a message to the accountant about the booking
+    const acc = accountants.find(a => a.id === selectedAccountant);
+    const dateRange = dateTo ? `от ${dateFrom} до ${dateTo}` : `на ${dateFrom}`;
+    const msgContent = `Заявка за консултация ${dateRange} в ${time}ч, ${duration} мин. ${notes ? `Тема: ${notes}` : ''} Моля, потвърдете кога можете.`;
+
+    await supabase.from('messages').insert({
+      sender_id: user.id,
+      receiver_id: selectedAccountant,
+      content: msgContent,
+    });
+
+    setSubmitting(false);
+    toast.success('Консултацията е запазена! Счетоводителят ще получи съобщение.');
+    setBooked(true);
+    setNotes('');
+    setDateFrom('');
+    setDateTo('');
+    setTime('');
+    fetchMyConsultations();
   };
 
   const getStatusLabel = (status: string) => {
@@ -95,11 +112,12 @@ export default function Consultations() {
     return map[status] || { label: status, variant: 'outline' as const };
   };
 
-  // Find the selected accountant name for display in my consultations
   const getAccountantName = (accountantId: string) => {
     const acc = accountants.find(a => a.id === accountantId);
     return acc?.full_name || 'Счетоводител';
   };
+
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -124,7 +142,7 @@ export default function Consultations() {
                 <div className="flex flex-col items-center gap-4 py-8 text-center">
                   <CheckCircle className="h-12 w-12 text-primary" />
                   <h3 className="text-lg font-semibold">Консултацията е запазена!</h3>
-                  <p className="text-sm text-muted-foreground">Ще получите потвърждение от счетоводителя.</p>
+                  <p className="text-sm text-muted-foreground">Счетоводителят ще получи съобщение и ще потвърди кога може.</p>
                   <Button onClick={() => setBooked(false)}>Запази нова</Button>
                 </div>
               ) : (
@@ -139,6 +157,7 @@ export default function Consultations() {
                         {accountants.map((a) => (
                           <SelectItem key={a.id} value={a.id}>
                             {a.full_name}{a.city ? ` — ${a.city}` : ''}
+                            {a.specialization?.length ? ` (${a.specialization.join(', ')})` : ''}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -146,31 +165,39 @@ export default function Consultations() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Дата</Label>
-                      <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} />
+                      <Label>От дата *</Label>
+                      <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} min={today} />
                     </div>
                     <div className="space-y-2">
-                      <Label>Час</Label>
+                      <Label>До дата (по избор)</Label>
+                      <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} min={dateFrom || today} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Предпочитан час *</Label>
                       <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Продължителност</Label>
+                      <Select value={duration} onValueChange={setDuration}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="30">30 минути</SelectItem>
+                          <SelectItem value="60">60 минути</SelectItem>
+                          <SelectItem value="90">90 минути</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Продължителност</Label>
-                    <Select value={duration} onValueChange={setDuration}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="30">30 минути</SelectItem>
-                        <SelectItem value="60">60 минути</SelectItem>
-                        <SelectItem value="90">90 минути</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Бележки (по избор)</Label>
+                    <Label>Тема / бележки</Label>
                     <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Опишете темата на консултацията..." rows={3} />
                   </div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <MessageSquare className="h-3 w-3" />
+                    Счетоводителят ще получи съобщение и ще потвърди удобно време
+                  </p>
                   <Button className="w-full" onClick={handleBook} disabled={submitting}>
                     {submitting ? 'Запазване...' : 'Запази консултация'}
                   </Button>

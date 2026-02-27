@@ -22,7 +22,7 @@ interface DirectoryEntry {
   email: string | null;
 }
 
-const SPECIALIZATIONS = ['Одит', 'Човешки ресурси', 'Данъчно обслужване', 'Пълно счетоводство'];
+const SPECIALIZATIONS = ['Одит', 'Човешки ресурси', 'Данъчно обслужване', 'Пълно счетоводство', 'ДДС', 'Заплати', 'ЗДДФЛ', 'ЗКПО'];
 
 export default function SearchAccountants() {
   const [searchParams] = useSearchParams();
@@ -54,7 +54,7 @@ export default function SearchAccountants() {
   const filteredIdes = directory.filter((d) => {
     if (d.source !== 'ides') return false;
     const q = query.toLowerCase();
-    const matchesQuery = !query || d.full_name.toLowerCase().includes(q) || d.city?.toLowerCase().includes(q);
+    const matchesQuery = !query || d.full_name.toLowerCase().includes(q) || d.city?.toLowerCase().includes(q) || d.qualification?.toLowerCase().includes(q) || d.specialization?.some(s => s.toLowerCase().includes(q));
     const matchesCity = cityFilter === 'all' || d.city === cityFilter;
     const matchesSpec = specFilter === 'all' || d.specialization?.includes(specFilter);
     return matchesQuery && matchesCity && matchesSpec;
@@ -63,7 +63,7 @@ export default function SearchAccountants() {
   const filteredPlatform = directory.filter((d) => {
     if (d.source !== 'platform') return false;
     const q = query.toLowerCase();
-    const matchesQuery = !query || d.full_name.toLowerCase().includes(q) || d.city?.toLowerCase().includes(q) || d.qualification?.toLowerCase().includes(q);
+    const matchesQuery = !query || d.full_name.toLowerCase().includes(q) || d.city?.toLowerCase().includes(q) || d.qualification?.toLowerCase().includes(q) || d.specialization?.some(s => s.toLowerCase().includes(q));
     const matchesCity = cityFilter === 'all' || d.city === cityFilter;
     const matchesSpec = specFilter === 'all' || d.specialization?.includes(specFilter);
     return matchesQuery && matchesCity && matchesSpec;

@@ -46,6 +46,9 @@ export default function Navbar() {
           <Link to="/calculators" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Калкулатори
           </Link>
+          <Link to="/calendar" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Календар
+          </Link>
           <Link to="/consultations" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Консултации
           </Link>
@@ -84,6 +87,7 @@ export default function Navbar() {
           <Link to="/search" className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Търси счетоводител</Link>
           <Link to="/blog" className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Блог</Link>
           <Link to="/calculators" className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Калкулатори</Link>
+          <Link to="/calendar" className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Календар</Link>
           <Link to="/consultations" className="block text-sm font-medium" onClick={() => setMobileOpen(false)}>Консултации</Link>
           {user ? (
             <>
