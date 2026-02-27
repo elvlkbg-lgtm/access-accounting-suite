@@ -56,6 +56,33 @@ export type Database = {
         }
         Relationships: []
       }
+      accountant_reviews: {
+        Row: {
+          accountant_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          reviewer_id: string
+        }
+        Insert: {
+          accountant_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          reviewer_id: string
+        }
+        Update: {
+          accountant_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          reviewer_id?: string
+        }
+        Relationships: []
+      }
       auditor_directory: {
         Row: {
           city: string | null

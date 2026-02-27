@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import AccountantReviews from '@/components/AccountantReviews';
 
 export default function AccountantProfilePage() {
   const { id } = useParams();
@@ -111,6 +112,8 @@ export default function AccountantProfilePage() {
                 </CardContent>
               </Card>
             )}
+
+            <AccountantReviews accountantId={id!} />
           </div>
 
           <div>
