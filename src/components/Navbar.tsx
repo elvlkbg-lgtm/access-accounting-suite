@@ -23,10 +23,10 @@ export default function Navbar() {
 
   const navLinks = [
     { to: '/', label: 'Търси счетоводител' },
-    { to: '/blog', label: 'Блог' },
-    { to: '/calculators', label: 'Калкулатори' },
     { to: '/calendar', label: 'Календар' },
     { to: '/consultations', label: 'Консултации' },
+    { to: '/calculators', label: 'Калкулатори' },
+    { to: '/blog', label: 'Блог' },
   ];
 
   return (
