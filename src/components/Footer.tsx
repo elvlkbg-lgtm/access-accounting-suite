@@ -18,7 +18,7 @@ export default function Footer() {
           <div>
             <h4 className="mb-3 font-semibold">Платформа</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/search" className="hover:text-foreground transition-colors">Намери счетоводител</Link></li>
+              <li><Link to="/" className="hover:text-foreground transition-colors">Търси счетоводител</Link></li>
               <li><Link to="/register" className="hover:text-foreground transition-colors">Регистрация</Link></li>
               <li><Link to="/login" className="hover:text-foreground transition-colors">Вход</Link></li>
             </ul>
@@ -26,10 +26,10 @@ export default function Footer() {
           <div>
             <h4 className="mb-3 font-semibold">Услуги</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Одит</li>
-              <li>Човешки ресурси</li>
-              <li>Данъчно обслужване</li>
-              <li>Пълно счетоводство</li>
+              <li><Link to="/?service=Одит" className="hover:text-foreground transition-colors">Одит</Link></li>
+              <li><Link to="/?service=ТРЗ" className="hover:text-foreground transition-colors">Счетоводно обслужване ТРЗ, Осигуровки и Човешки ресурси</Link></li>
+              <li><Link to="/?service=Данъци" className="hover:text-foreground transition-colors">Данъци</Link></li>
+              <li><Link to="/?service=Пълно" className="hover:text-foreground transition-colors">Пълно счетоводство</Link></li>
             </ul>
           </div>
           <div>

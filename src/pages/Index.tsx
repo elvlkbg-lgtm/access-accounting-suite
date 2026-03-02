@@ -87,6 +87,7 @@ function InlineStarRating({ value }: { value: number }) {
 export default function Index() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const serviceParam = searchParams.get('service');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [cityFilter, setCityFilter] = useState('all');
   const [specFilter, setSpecFilter] = useState('all');
@@ -100,6 +101,18 @@ export default function Index() {
   useEffect(() => {
     fetchAll();
   }, []);
+
+  useEffect(() => {
+    if (serviceParam) {
+      const match = SERVICE_CARDS.find(s => s.title.includes(serviceParam) || s.searchQuery.includes(serviceParam));
+      if (match) {
+        setExpandedService(match.title);
+        setTimeout(() => {
+          document.querySelector('#services-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 200);
+      }
+    }
+  }, [serviceParam]);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -238,7 +251,7 @@ export default function Index() {
       </section>
 
       {/* Services & Prices */}
-      <section className="container mx-auto px-4 py-20">
+      <section id="services-section" className="container mx-auto px-4 py-20">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

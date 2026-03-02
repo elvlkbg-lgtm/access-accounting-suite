@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { FileText, MessageCircle, ClipboardList, Search, Send, Upload } from 'lucide-react';
+import OnlineStatusSelector from '@/components/OnlineStatusSelector';
 import Navbar from '@/components/Navbar';
 import MessagingPanel from '@/components/MessagingPanel';
 import DocumentManager from '@/components/DocumentManager';
@@ -19,6 +20,7 @@ export default function ClientDashboard() {
   const [requests, setRequests] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [docCount, setDocCount] = useState(0);
+  const [onlineStatus, setOnlineStatus] = useState('offline');
   const [newMessage, setNewMessage] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -28,8 +30,13 @@ export default function ClientDashboard() {
   }, [user]);
 
   const fetchData = async () => {
-    await Promise.all([fetchRequests(), fetchUnread(), fetchDocCount()]);
+    await Promise.all([fetchRequests(), fetchUnread(), fetchDocCount(), fetchOnlineStatus()]);
     setLoading(false);
+  };
+
+  const fetchOnlineStatus = async () => {
+    const { data } = await supabase.from('profiles').select('online_status').eq('id', user!.id).single();
+    if (data) setOnlineStatus((data as any).online_status || 'offline');
   };
 
   const fetchRequests = async () => {
@@ -83,9 +90,12 @@ export default function ClientDashboard() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Клиентско табло</h1>
-          <p className="text-muted-foreground">Управлявайте вашите заявки, документи и комуникация.</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Клиентско табло</h1>
+            <p className="text-muted-foreground">Управлявайте вашите заявки, документи и комуникация.</p>
+          </div>
+          <OnlineStatusSelector currentStatus={onlineStatus} onStatusChange={setOnlineStatus} />
         </div>
 
         <div className="mb-6 grid gap-4 md:grid-cols-3">

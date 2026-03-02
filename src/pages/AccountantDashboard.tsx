@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, MessageCircle, ClipboardList, Users, Send, Upload, Plus, Trash2, ExternalLink, Calendar, BarChart3 } from 'lucide-react';
+import OnlineStatusSelector from '@/components/OnlineStatusSelector';
 import Navbar from '@/components/Navbar';
 import MessagingPanel from '@/components/MessagingPanel';
 import DocumentManager from '@/components/DocumentManager';
@@ -28,6 +29,7 @@ export default function AccountantDashboard() {
   const [services, setServices] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [onlineStatus, setOnlineStatus] = useState('offline');
   const [loading, setLoading] = useState(true);
 
   // Profile form
@@ -52,7 +54,13 @@ export default function AccountantDashboard() {
   const fetchAll = async () => {
     await fetchProfile();
     await fetchUnread();
+    await fetchOnlineStatus();
     setLoading(false);
+  };
+
+  const fetchOnlineStatus = async () => {
+    const { data } = await supabase.from('profiles').select('online_status').eq('id', user!.id).single();
+    if (data) setOnlineStatus((data as any).online_status || 'offline');
   };
 
   const fetchUnread = async () => {
@@ -158,12 +166,15 @@ export default function AccountantDashboard() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Табло на счетоводителя</h1>
-          <p className="text-muted-foreground">Управлявайте профила, заявките и документите си.</p>
-          {!accountantProfile.is_approved && (
-            <Badge variant="secondary" className="mt-2">Очаква одобрение от администратор</Badge>
-          )}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Табло на счетоводителя</h1>
+            <p className="text-muted-foreground">Управлявайте профила, заявките и документите си.</p>
+            {!accountantProfile.is_approved && (
+              <Badge variant="secondary" className="mt-2">Очаква одобрение от администратор</Badge>
+            )}
+          </div>
+          <OnlineStatusSelector currentStatus={onlineStatus} onStatusChange={setOnlineStatus} />
         </div>
 
         {/* Stats */}
