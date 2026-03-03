@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Calendar, Clock, ArrowRight, BookOpen, Newspaper, Lightbulb, Scale, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Calendar, Clock, ArrowRight, BookOpen, Newspaper, Lightbulb, Scale, ChevronDown, ChevronUp, ExternalLink, FileText } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -33,36 +33,114 @@ const ARTICLES: Article[] = [
 const CATEGORY_ICONS = { news: Newspaper, tips: Lightbulb, guides: BookOpen };
 const CATEGORY_LABELS: Record<string, string> = { news: 'Новини', tips: 'Съвети', guides: 'Ръководства' };
 
-/* ── Laws section ── */
-const LAWS = [
+/* ── Laws & normative documents ── */
+interface LawEntry {
+  id: string;
+  title: string;
+  shortName?: string;
+  category: 'law' | 'standard' | 'international';
+  sourceUrl: string;
+  source: string;
+  summary: string;
+}
+
+const LAWS: LawEntry[] = [
   {
     id: 'zs',
     title: 'Закон за счетоводството',
-    source: 'accreg.org',
-    sourceUrl: 'https://www.accreg.org/bg/pages/view/6/zakon-za-schetovodstvoto.html',
-    summary: 'Обн. ДВ. бр. 95 от 8.12.2015 г., последно изм. и доп. ДВ. бр. 26 от 22.03.2020 г.',
-    chapters: [
-      { title: 'Глава 1 — Общи положения', content: 'Чл. 1. Този закон урежда: 1. изискванията към текущото счетоводно отчитане и счетоводните системи в предприятията; 2. приложимите счетоводни стандарти; 3. съдържанието и съставянето на финансовите отчети; 4. изискванията към лицата, които съставят финансовите отчети; 5. публичността на финансовите отчети; 6. годишните доклади.\n\nЧл. 2. (1) Предприятия по смисъла на този закон са: търговци по смисъла на Търговския закон; юридически лица, които не са търговци; бюджетни предприятия; неперсонифицирани дружества; търговски представителства; чуждестранни лица, осъществяващи стопанска дейност в страната.\n\n(2) За предприятия се смятат и осигурителни каси по КСО, както и търговски представителства.' },
-      { title: 'Глава 2 — Счетоводни системи', content: 'Чл. 11. (1) Предприятията осъществяват счетоводството на основата на документалната обоснованост на стопанските операции и факти.\n\nЧл. 12. Счетоводните документи са: първични, вторични и регистри.\n\nЧл. 13. Първичният счетоводен документ съдържа: наименование и номер; дата; наименования на участниците; предмет, натурално и стойностно изражение; име и подпис на съставителя.' },
-      { title: 'Глава 3 — Категории предприятия и групи', content: 'Чл. 19. Микропредприятия — предприятия, които към 31 декември на текущия отчетен период не надвишават най-малко два от: балансова стойност на активите — 700 000 лв.; нетни приходи от продажби — 1 400 000 лв.; средна численост на персонала — 10 души.\n\nЧл. 20. Малки предприятия — не надвишават два от: активи 8 000 000 лв.; приходи 16 000 000 лв.; персонал 50 души.\n\nЧл. 21. Средни предприятия — не надвишават два от: активи 38 000 000 лв.; приходи 76 000 000 лв.; персонал 250 души.' },
-      { title: 'Глава 4 — Финансови отчети', content: 'Чл. 24. Финансовите отчети на предприятията дават вярна и честна представа за имущественото и финансовото състояние, отчетения финансов резултат, промените в паричните потоци и в собствения капитал.\n\nЧл. 25. Годишният финансов отчет включва: счетоводен баланс, отчет за приходите и разходите, отчет за паричните потоци, отчет за собствения капитал и приложение.' },
-      { title: 'Глава 5 — Публичност на отчетите', content: 'Чл. 38. (1) Предприятията публикуват годишния финансов отчет и консолидирания финансов отчет, годишния доклад за дейността и годишния консолидиран доклад за дейността.\n\n(2) Търговците публикуват в Търговския регистър.\n\n(9) Годишните финансови отчети се публикуват до 30 юни на следващата година.' },
-    ],
+    shortName: 'ЗСч',
+    category: 'law',
+    sourceUrl: 'https://lex.bg/bg/laws/ldoc/2136697598',
+    source: 'lex.bg',
+    summary: 'Урежда изискванията към счетоводното отчитане, счетоводните стандарти, финансовите отчети и тяхната публичност. Определя категориите предприятия и приложимите стандарти.',
   },
+  {
+    id: 'zdds',
+    title: 'Закон за данък върху добавената стойност',
+    shortName: 'ЗДДС',
+    category: 'law',
+    sourceUrl: 'https://nra.bg/wps/portal/nra/zakonodatelstvo/zakonodatelstvo_priority/11e9f37c-163e-4951-a43b-6018591e6fa7',
+    source: 'nra.bg',
+    summary: 'Регламентира облагането с ДДС — регистрация, ставки, приспадане на данъчен кредит, освободени доставки, вътреобщностни придобивания и доставки.',
+  },
+  {
+    id: 'zkpo',
+    title: 'Закон за корпоративното подоходно облагане',
+    shortName: 'ЗКПО',
+    category: 'law',
+    sourceUrl: 'https://lex.bg/laws/ldoc/2135540562',
+    source: 'lex.bg',
+    summary: 'Определя облагането на печалбите на юридическите лица — корпоративен данък 10%, данък при източника, преобразувания на финансовия резултат, данъчни амортизации.',
+  },
+  {
+    id: 'zddfl',
+    title: 'Закон за данъците върху доходите на физическите лица',
+    shortName: 'ЗДДФЛ',
+    category: 'law',
+    sourceUrl: 'https://www.lex.bg/laws/ldoc/2135538631',
+    source: 'lex.bg',
+    summary: 'Регулира облагането на доходите на физическите лица — трудови, от стопанска дейност, наеми, дивиденти. Плоска ставка от 10%.',
+  },
+  {
+    id: 'kso',
+    title: 'Кодекс за социално осигуряване',
+    shortName: 'КСО',
+    category: 'law',
+    sourceUrl: 'https://www.lex.bg/laws/ldoc/1597824512',
+    source: 'lex.bg',
+    summary: 'Урежда държавното обществено осигуряване — пенсии, болнични, майчинство, безработица, трудови злополуки. Определя осигурителни вноски и прагове.',
+  },
+  {
+    id: 'tz',
+    title: 'Търговски закон',
+    shortName: 'ТЗ',
+    category: 'law',
+    sourceUrl: 'https://lex.bg/laws/ldoc/-14917630',
+    source: 'lex.bg',
+    summary: 'Основният закон, уреждащ търговската дейност — видове търговски дружества (ЕТ, ООД, АД), учредяване, управление, преобразуване и ликвидация.',
+  },
+  {
+    id: 'nss',
+    title: 'Национални счетоводни стандарти (НСС)',
+    category: 'standard',
+    sourceUrl: 'https://kik-info.com/normativna-baza/nss/',
+    source: 'kik-info.com',
+    summary: 'Комплект от стандарти, приложими за предприятия, които не прилагат МСФО. Включват НСС 1-42 — отчитане на приходи, разходи, ДМА, НМА, лизинг, провизии и др.',
+  },
+  {
+    id: 'ifrs',
+    title: 'Международни стандарти за финансово отчитане (МСФО)',
+    category: 'international',
+    sourceUrl: 'https://eur-lex.europa.eu/BG/legal-content/summary/international-financial-reporting-standards-ifrs-adopted-by-the-european-union.html',
+    source: 'eur-lex.europa.eu',
+    summary: 'МСФО, приети от ЕС — задължителни за публични дружества и консолидирани отчети. Включват МСФО 1-17 и МСС 1-41. Осигуряват единна рамка за финансово отчитане в ЕС.',
+  },
+];
+
+const CATEGORY_LAW_LABELS: Record<string, string> = {
+  law: 'Закон',
+  standard: 'Стандарт',
+  international: 'Международен',
+};
+
+const NRA_NEWS = [
+  { title: 'Данъчно-осигурителен календар 2026', url: 'https://nra.bg/wps/portal/nra/nachalo', description: 'Актуален календар с крайни срокове за деклариране и плащане на данъци и осигуровки.' },
+  { title: 'Актуални новини от НАП', url: 'https://nra.bg/wps/portal/nra/nachalo', description: 'Последни съобщения, промени в законодателството и указания от Националната агенция за приходите.' },
 ];
 
 export default function Blog() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<Category>('all');
   const [activeTab, setActiveTab] = useState<'articles' | 'laws'>('articles');
-  const [expandedLaw, setExpandedLaw] = useState<string | null>(null);
-  const [expandedChapter, setExpandedChapter] = useState<string | null>(null);
+  const [lawFilter, setLawFilter] = useState<'all' | 'law' | 'standard' | 'international'>('all');
 
   const filtered = ARTICLES.filter((a) => {
     const matchSearch = a.title.toLowerCase().includes(search.toLowerCase()) || a.excerpt.toLowerCase().includes(search.toLowerCase());
     const matchCat = category === 'all' || a.category === category;
     return matchSearch && matchCat;
   });
+
+  const filteredLaws = LAWS.filter((l) => lawFilter === 'all' || l.category === lawFilter);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -73,11 +151,10 @@ export default function Blog() {
           <p className="mt-2 text-muted-foreground">Статии, новини, съвети и нормативни документи</p>
         </div>
 
-        {/* Main tabs: Articles / Laws */}
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="mb-8">
           <TabsList className="mx-auto flex w-fit">
             <TabsTrigger value="articles" className="gap-1"><Newspaper className="h-4 w-4" /> Статии</TabsTrigger>
-            <TabsTrigger value="laws" className="gap-1"><Scale className="h-4 w-4" /> Закони</TabsTrigger>
+            <TabsTrigger value="laws" className="gap-1"><Scale className="h-4 w-4" /> Закони и нормативи</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -139,49 +216,78 @@ export default function Blog() {
         )}
 
         {activeTab === 'laws' && (
-          <div className="mx-auto max-w-3xl space-y-6">
-            {LAWS.map((law) => (
-              <Card key={law.id}>
-                <CardHeader
-                  className="cursor-pointer"
-                  onClick={() => setExpandedLaw(expandedLaw === law.id ? null : law.id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Scale className="h-5 w-5 text-primary" />
-                      <div>
-                        <CardTitle className="text-lg">{law.title}</CardTitle>
-                        <p className="text-xs text-muted-foreground mt-1">{law.summary}</p>
-                      </div>
+          <div className="mx-auto max-w-4xl space-y-8">
+            {/* Filter tabs */}
+            <Tabs value={lawFilter} onValueChange={(v) => setLawFilter(v as any)}>
+              <TabsList className="mx-auto flex w-fit">
+                <TabsTrigger value="all">Всички</TabsTrigger>
+                <TabsTrigger value="law">Закони</TabsTrigger>
+                <TabsTrigger value="standard">Стандарти</TabsTrigger>
+                <TabsTrigger value="international">Международни</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {/* Laws grid */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {filteredLaws.map((law) => (
+                <Card key={law.id} className="transition-all hover:shadow-lg hover:border-primary/30">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <Badge variant={law.category === 'law' ? 'default' : law.category === 'standard' ? 'secondary' : 'outline'}>
+                        {CATEGORY_LAW_LABELS[law.category]}
+                      </Badge>
+                      {law.shortName && <span className="text-xs font-mono text-muted-foreground">{law.shortName}</span>}
                     </div>
-                    {expandedLaw === law.id ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                  </div>
-                </CardHeader>
-                {expandedLaw === law.id && (
+                    <CardTitle className="mt-2 text-base leading-tight">{law.title}</CardTitle>
+                  </CardHeader>
                   <CardContent className="space-y-3">
-                    <a href={law.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
-                      Пълен текст на {law.source} →
+                    <p className="text-sm text-muted-foreground">{law.summary}</p>
+                    <a
+                      href={law.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      Пълен текст на {law.source}
                     </a>
-                    {law.chapters.map((ch, i) => (
-                      <div key={i} className="rounded-lg border">
-                        <button
-                          className="w-full flex items-center justify-between p-3 text-sm font-medium text-left hover:bg-muted/50 transition-colors"
-                          onClick={() => setExpandedChapter(expandedChapter === `${law.id}-${i}` ? null : `${law.id}-${i}`)}
-                        >
-                          {ch.title}
-                          {expandedChapter === `${law.id}-${i}` ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                        </button>
-                        {expandedChapter === `${law.id}-${i}` && (
-                          <div className="px-3 pb-3">
-                            <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">{ch.content}</p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
                   </CardContent>
-                )}
-              </Card>
-            ))}
+                </Card>
+              ))}
+            </div>
+
+            {filteredLaws.length === 0 && (
+              <p className="py-8 text-center text-muted-foreground">Няма намерени документи.</p>
+            )}
+
+            {/* NRA section */}
+            <div className="pt-4">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                НАП — Новини и календар
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {NRA_NEWS.map((item, i) => (
+                  <Card key={i} className="transition-all hover:shadow-lg hover:border-primary/30">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">{item.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        Отвори в nra.bg
+                      </a>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </main>

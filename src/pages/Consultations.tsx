@@ -16,9 +16,9 @@ import { useNavigate } from 'react-router-dom';
 
 interface PlatformAccountant {
   id: string;
-  full_name: string;
-  specialization: string[] | null;
-  city: string | null;
+  display_name: string | null;
+  user_id: string;
+  location: string | null;
 }
 
 export default function Consultations() {
@@ -43,17 +43,17 @@ export default function Consultations() {
   }, [user]);
 
   const fetchAccountants = async () => {
+    // Fetch from accountant_profiles (platform accountants) since consultations FK references this table
     const { data } = await supabase
-      .from('auditor_directory')
-      .select('id, full_name, specialization, city')
-      .eq('source', 'platform')
-      .order('full_name');
-    setAccountants((data as PlatformAccountant[]) || []);
+      .from('accountant_profiles')
+      .select('id, display_name, user_id, location')
+      .eq('is_approved', true)
+      .order('display_name');
+    setAccountants(data || []);
   };
 
   const fetchMyConsultations = async () => {
     if (isAccountant) {
-      // Accountant sees consultations assigned to their profile
       const { data: profile } = await supabase
         .from('accountant_profiles')
         .select('id')
@@ -101,15 +101,18 @@ export default function Consultations() {
       return;
     }
 
+    // Send message to the accountant's user_id (not the profile id)
     const acc = accountants.find(a => a.id === selectedAccountant);
-    const dateRange = dateTo ? `от ${dateFrom} до ${dateTo}` : `на ${dateFrom}`;
-    const msgContent = `Заявка за консултация ${dateRange} в ${time}ч, ${duration} мин. ${notes ? `Тема: ${notes}` : ''} Моля, потвърдете кога можете.`;
+    if (acc) {
+      const dateRange = dateTo ? `от ${dateFrom} до ${dateTo}` : `на ${dateFrom}`;
+      const msgContent = `Заявка за консултация ${dateRange} в ${time}ч, ${duration} мин. ${notes ? `Тема: ${notes}` : ''} Моля, потвърдете кога можете.`;
 
-    await supabase.from('messages').insert({
-      sender_id: user.id,
-      receiver_id: selectedAccountant,
-      content: msgContent,
-    });
+      await supabase.from('messages').insert({
+        sender_id: user.id,
+        receiver_id: acc.user_id,
+        content: msgContent,
+      });
+    }
 
     setSubmitting(false);
     toast.success('Заявката е изпратена! Счетоводителят ще я прегледа.');
@@ -155,7 +158,7 @@ export default function Consultations() {
 
   const getAccountantName = (accountantId: string) => {
     const acc = accountants.find(a => a.id === accountantId);
-    return acc?.full_name || 'Счетоводител';
+    return acc?.display_name || 'Счетоводител';
   };
 
   const today = new Date().toISOString().split('T')[0];
@@ -169,12 +172,11 @@ export default function Consultations() {
           <p className="mt-2 text-muted-foreground">
             {isAccountant 
               ? 'Преглед и управление на заявки за консултации от клиенти'
-              : 'Запазете час за видео консултация с професионален счетоводител от платформата'}
+              : 'Запазете час за консултация с професионален счетоводител от платформата'}
           </p>
         </div>
 
         <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-2">
-          {/* Booking form - only for clients */}
           {!isAccountant && (
             <Card>
               <CardHeader>
@@ -202,7 +204,7 @@ export default function Consultations() {
                         <SelectContent>
                           {accountants.map((a) => (
                             <SelectItem key={a.id} value={a.id}>
-                              {a.full_name}{a.city ? ` — ${a.city}` : ''}
+                              {a.display_name || 'Счетоводител'}{a.location ? ` — ${a.location}` : ''}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -252,7 +254,6 @@ export default function Consultations() {
             </Card>
           )}
 
-          {/* Consultations list */}
           <Card className={isAccountant ? 'lg:col-span-2' : ''}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -279,7 +280,7 @@ export default function Consultations() {
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-2 text-sm font-medium">
                             <User className="h-4 w-4 text-muted-foreground" />
-                            {isAccountant ? `Клиент` : getAccountantName(c.accountant_id)}
+                            {isAccountant ? 'Клиент' : getAccountantName(c.accountant_id)}
                           </span>
                           <Badge variant={status.variant}>{status.label}</Badge>
                         </div>
@@ -296,7 +297,6 @@ export default function Consultations() {
                         </div>
                         {c.notes && <p className="text-xs text-muted-foreground">{c.notes}</p>}
                         
-                        {/* Accountant approval buttons */}
                         {isAccountant && c.status === 'pending' && (
                           <div className="flex gap-2 pt-1">
                             <Button size="sm" onClick={() => handleApprove(c.id, c.client_id)}>
