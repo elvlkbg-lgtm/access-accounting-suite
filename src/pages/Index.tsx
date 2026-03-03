@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -17,36 +18,36 @@ import AccountantReviews from '@/components/AccountantReviews';
 /* ── Services data ── */
 const SERVICE_CARDS = [
   {
-    icon: Shield,
-    title: 'Одит',
-    price: '250–300 €',
-    description: 'Финансов одит и ревизии',
-    details: 'Независима проверка на финансовите отчети съгласно международните стандарти. Вътрешен одит и контрол, ревизии по искане на ръководството, одит за съответствие с нормативната уредба. Резултатите помагат за по-информирани управленски решения.',
-    searchQuery: 'Одит',
-  },
-  {
-    icon: Users,
-    title: 'Счетоводно обслужване ТРЗ, осигуровки и Човешки ресурси',
-    price: '100–150 €',
-    description: 'ТРЗ, кадри, осигуровки',
-    details: 'Изготвяне на ведомости за заплати, трудови договори, допълнителни споразумения и заповеди за прекратяване. Подаване на осигурителни декларации, болнични листове и документи към НАП и НОИ. Цялостно кадрово обслужване.',
-    searchQuery: 'Човешки ресурси',
-  },
-  {
-    icon: FileText,
-    title: 'Данъци',
-    price: '80–100 €',
-    description: 'Данъчни декларации и планиране',
-    details: 'Професионално данъчно планиране и оптимизация. Подготовка и подаване на данъчни декларации по ДДС, ЗДДФЛ и ЗКПО. Представителство пред НАП при проверки и ревизии. Минимизиране на данъчната тежест при спазване на закона.',
-    searchQuery: 'Данъчно обслужване',
-  },
-  {
     icon: Star,
     title: 'Пълно счетоводство',
     price: '180–220 €',
     description: 'Цялостно счетоводно обслужване',
     details: 'Текущо осчетоводяване на документи, годишно счетоводно приключване, изготвяне на финансови отчети и справки за управлението. Работим с всички видове предприятия — от еднолични търговци до големи компании.',
     searchQuery: 'Пълно счетоводство',
+  },
+  {
+    icon: FileText,
+    title: 'Счетоводни услуги Данъци',
+    price: '80–100 €',
+    description: 'Данъчни декларации и планиране',
+    details: 'Професионално данъчно планиране и оптимизация. Подготовка и подаване на данъчни декларации по ДДС, ЗДДФЛ и ЗКПО. Представителство пред НАП при проверки и ревизии. Минимизиране на данъчната тежест при спазване на закона.',
+    searchQuery: 'Данъчно обслужване',
+  },
+  {
+    icon: Users,
+    title: 'Счетоводни услуги ТРЗ и Човешки ресурси',
+    price: '100–150 €',
+    description: 'ТРЗ, кадри, осигуровки',
+    details: 'Изготвяне на ведомости за заплати, трудови договори, допълнителни споразумения и заповеди за прекратяване. Подаване на осигурителни декларации, болнични листове и документи към НАП и НОИ. Цялостно кадрово обслужване.',
+    searchQuery: 'Човешки ресурси',
+  },
+  {
+    icon: Shield,
+    title: 'Счетоводни услуги Одит',
+    price: '250–300 €',
+    description: 'Финансов одит и ревизии',
+    details: 'Независима проверка на финансовите отчети съгласно международните стандарти. Вътрешен одит и контрол, ревизии по искане на ръководството, одит за съответствие с нормативната уредба. Резултатите помагат за по-информирани управленски решения.',
+    searchQuery: 'Одит',
   },
 ];
 
@@ -86,6 +87,7 @@ function InlineStarRating({ value }: { value: number }) {
 
 export default function Index() {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
   const serviceParam = searchParams.get('service');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
@@ -158,6 +160,11 @@ export default function Index() {
   const clearFilters = () => { setSearchQuery(''); setCityFilter('all'); setSpecFilter('all'); };
 
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); };
+
+  // Redirect logged-in users to dashboard
+  if (!authLoading && user) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const renderAccountantCard = (d: DirectoryEntry) => {
     const rv = reviewCounts[d.id];

@@ -10,10 +10,11 @@ import {
 } from 'lucide-react';
 
 const QUICK_ACTIONS_CLIENT = [
-  { icon: Search, label: 'Търси счетоводител', path: '/search', color: 'text-primary' },
+  { icon: Search, label: 'Търси счетоводител', path: '/', color: 'text-primary' },
   { icon: ClipboardList, label: 'Моите заявки', path: '/client?tab=requests', color: 'text-primary' },
   { icon: FolderOpen, label: 'Документи', path: '/client?tab=documents', color: 'text-primary' },
   { icon: MessageCircle, label: 'Съобщения', path: '/client?tab=messages', color: 'text-primary' },
+  { icon: Search, label: 'Консултации', path: '/consultations', color: 'text-primary' },
 ];
 
 const QUICK_ACTIONS_ACCOUNTANT = [

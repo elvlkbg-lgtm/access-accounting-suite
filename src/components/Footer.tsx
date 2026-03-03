@@ -19,6 +19,10 @@ export default function Footer() {
             <h4 className="mb-3 font-semibold">Платформа</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/" className="hover:text-foreground transition-colors">Търси счетоводител</Link></li>
+              <li><Link to="/calendar" className="hover:text-foreground transition-colors">Календар</Link></li>
+              <li><Link to="/consultations" className="hover:text-foreground transition-colors">Консултации</Link></li>
+              <li><Link to="/calculators" className="hover:text-foreground transition-colors">Калкулатори</Link></li>
+              <li><Link to="/blog" className="hover:text-foreground transition-colors">Блог</Link></li>
               <li><Link to="/register" className="hover:text-foreground transition-colors">Регистрация</Link></li>
               <li><Link to="/login" className="hover:text-foreground transition-colors">Вход</Link></li>
             </ul>
@@ -26,17 +30,17 @@ export default function Footer() {
           <div>
             <h4 className="mb-3 font-semibold">Услуги</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/?service=Одит" className="hover:text-foreground transition-colors">Одит</Link></li>
-              <li><Link to="/?service=ТРЗ" className="hover:text-foreground transition-colors">Счетоводно обслужване ТРЗ, Осигуровки и Човешки ресурси</Link></li>
-              <li><Link to="/?service=Данъци" className="hover:text-foreground transition-colors">Данъци</Link></li>
               <li><Link to="/?service=Пълно" className="hover:text-foreground transition-colors">Пълно счетоводство</Link></li>
+              <li><Link to="/?service=Данъци" className="hover:text-foreground transition-colors">Счетоводни услуги Данъци</Link></li>
+              <li><Link to="/?service=ТРЗ" className="hover:text-foreground transition-colors">Счетоводни услуги ТРЗ и Човешки ресурси</Link></li>
+              <li><Link to="/?service=Одит" className="hover:text-foreground transition-colors">Счетоводни услуги Одит</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="mb-3 font-semibold">Контакти</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>info@accountpro.bg</li>
-              <li>+359 2 123 4567</li>
+              <li><a href="mailto:info@accountpro.bg" className="hover:text-foreground transition-colors">info@accountpro.bg</a></li>
+              <li><a href="tel:+35921234567" className="hover:text-foreground transition-colors">+359 2 123 4567</a></li>
               <li>ул. „Цар Освободител" 15, София</li>
             </ul>
             <div className="mt-4 overflow-hidden rounded-lg border">
