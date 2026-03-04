@@ -51,7 +51,7 @@ const SERVICE_CARDS = [
   },
 ];
 
-const SPECIALIZATIONS = ['Одит', 'Човешки ресурси', 'Данъчно обслужване', 'Пълно счетоводство', 'ДДС', 'Заплати', 'ЗДДФЛ', 'ЗКПО'];
+const SPECIALIZATIONS = ['Пълно счетоводство', 'Данъчно обслужване', 'ДДС', 'ЗДДФЛ', 'ЗКПО', 'Човешки ресурси', 'Заплати', 'Одит', 'Осигуровки', 'ТРЗ'];
 
 interface DirectoryEntry {
   id: string;
@@ -148,9 +148,15 @@ export default function Index() {
   const filterEntries = (source: string) => directory.filter((d) => {
     if (d.source !== source) return false;
     const q = searchQuery.toLowerCase();
-    const matchesQuery = !searchQuery || d.full_name.toLowerCase().includes(q) || d.city?.toLowerCase().includes(q) || d.qualification?.toLowerCase().includes(q) || d.specialization?.some(s => s.toLowerCase().includes(q));
+    const matchesQuery = !searchQuery
+      || d.full_name.toLowerCase().includes(q)
+      || d.city?.toLowerCase().includes(q)
+      || d.qualification?.toLowerCase().includes(q)
+      || d.specialization?.some(s => s.toLowerCase().includes(q))
+      || d.email?.toLowerCase().includes(q)
+      || d.ides_number?.toLowerCase().includes(q);
     const matchesCity = cityFilter === 'all' || d.city === cityFilter;
-    const matchesSpec = specFilter === 'all' || d.specialization?.includes(specFilter);
+    const matchesSpec = specFilter === 'all' || d.specialization?.some(s => s.includes(specFilter));
     return matchesQuery && matchesCity && matchesSpec;
   });
 
@@ -161,10 +167,7 @@ export default function Index() {
 
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); };
 
-  // Redirect logged-in users to dashboard
-  if (!authLoading && user) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  // No redirect - logged-in users can still use search
 
   const renderAccountantCard = (d: DirectoryEntry) => {
     const rv = reviewCounts[d.id];
@@ -518,6 +521,11 @@ export default function Index() {
                     <Button variant="outline" onClick={() => { setSelectedAccountant(null); navigate('/consultations'); }}>
                       Консултация
                     </Button>
+                    {user && (
+                      <Button variant="secondary" onClick={() => { setSelectedAccountant(null); navigate('/client?tab=messages'); }}>
+                        Съобщение
+                      </Button>
+                    )}
                   </div>
                 )}
 
