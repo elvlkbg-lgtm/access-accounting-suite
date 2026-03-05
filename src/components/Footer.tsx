@@ -1,4 +1,4 @@
-import { Calculator } from 'lucide-react';
+import { Calculator, Instagram, Facebook } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
@@ -43,6 +43,14 @@ export default function Footer() {
               <li><a href="tel:+35921234567" className="hover:text-foreground transition-colors">+359 2 123 4567</a></li>
               <li>ул. „Цар Освободител" 15, София</li>
             </ul>
+            <div className="mt-4 flex gap-3">
+              <a href="https://www.instagram.com/accountix1/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                <Facebook className="h-5 w-5" />
+              </a>
+            </div>
             <div className="mt-4 overflow-hidden rounded-lg border">
               <iframe
                 title="Карта на офиса"
