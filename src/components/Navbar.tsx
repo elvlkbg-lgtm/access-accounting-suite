@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { Calculator, Menu, X } from 'lucide-react';
+import { Calculator, Menu, X, Instagram, Facebook } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Navbar() {
@@ -55,10 +55,26 @@ export default function Navbar() {
               <Link to={getDashboardPath()} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Табло
               </Link>
+              <div className="flex items-center gap-2">
+                <a href="https://www.instagram.com/accountix1/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Facebook className="h-5 w-5" />
+                </a>
+              </div>
               <Button variant="outline" size="sm" onClick={handleSignOut}>Изход</Button>
             </>
           ) : (
             <>
+              <div className="flex items-center gap-2">
+                <a href="https://www.instagram.com/accountix1/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Facebook className="h-5 w-5" />
+                </a>
+              </div>
               <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Вход</Button>
               <Button size="sm" onClick={() => navigate('/register')}>Регистрация</Button>
             </>
