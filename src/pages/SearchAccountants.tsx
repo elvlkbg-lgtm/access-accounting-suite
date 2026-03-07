@@ -22,7 +22,20 @@ interface DirectoryEntry {
   ides_number: string | null;
   source: string;
   email: string | null;
+  rating?: number | null;
 }
+
+const sortEntries = (entries: DirectoryEntry[], sort: SortOption): DirectoryEntry[] => {
+  return [...entries].sort((a, b) => {
+    switch (sort) {
+      case 'name-asc': return a.full_name.localeCompare(b.full_name, 'bg');
+      case 'name-desc': return b.full_name.localeCompare(a.full_name, 'bg');
+      case 'rating-desc': return (b.rating || 0) - (a.rating || 0);
+      case 'rating-asc': return (a.rating || 0) - (b.rating || 0);
+      default: return 0;
+    }
+  });
+};
 
 const SPECIALIZATIONS = ['Одит', 'Човешки ресурси', 'Данъчно обслужване', 'Пълно счетоводство', 'ДДС', 'Заплати', 'ЗДДФЛ', 'ЗКПО'];
 
