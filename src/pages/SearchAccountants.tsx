@@ -7,9 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, MapPin, Filter, Users, BookOpen } from 'lucide-react';
+import { Search, MapPin, Filter, Users, BookOpen, ArrowUpDown } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+
+type SortOption = 'name-asc' | 'name-desc' | 'rating-desc' | 'rating-asc';
 
 interface DirectoryEntry {
   id: string;
@@ -33,6 +35,7 @@ export default function SearchAccountants() {
   const [directory, setDirectory] = useState<DirectoryEntry[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<SortOption>('name-asc');
 
   useEffect(() => {
     fetchAll();
