@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
-import { Calculator, User, Briefcase, ArrowLeft, ArrowRight, X } from 'lucide-react';
+import { Calculator, User, Briefcase, ArrowLeft, ArrowRight, X, MapPin } from 'lucide-react';
 
 const SPECIALIZATION_OPTIONS = [
   'Пълно счетоводство', 'Данъчно обслужване', 'ДДС', 'ЗДДФЛ', 'ЗКПО',
@@ -25,10 +25,11 @@ export default function Register() {
   const [lastName, setLastName] = useState('');
   const [role, setRole] = useState<'client' | 'accountant' | null>(null);
   const [specializations, setSpecializations] = useState<string[]>([]);
+  const [city, setCity] = useState('');
   const [loading, setLoading] = useState(false);
   const [direction, setDirection] = useState(1);
 
-  const totalSteps = role === 'accountant' ? 4 : 3;
+  const totalSteps = role === 'accountant' ? 5 : 3;
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +46,7 @@ export default function Register() {
         data: {
           full_name: fullName,
           role,
-          ...(role === 'accountant' ? { specializations } : {}),
+          ...(role === 'accountant' ? { specializations, city: city.trim() || null } : {}),
         },
       },
     });
