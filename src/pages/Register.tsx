@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
-import { Calculator, User, Briefcase, ArrowLeft, ArrowRight, X, MapPin } from 'lucide-react';
+import { Calculator, User, Briefcase, ArrowLeft, ArrowRight, X, MapPin, Phone, Camera } from 'lucide-react';
 
 const SPECIALIZATION_OPTIONS = [
   'Пълно счетоводство', 'Данъчно обслужване', 'ДДС', 'ЗДДФЛ', 'ЗКПО',
@@ -26,10 +26,28 @@ export default function Register() {
   const [role, setRole] = useState<'client' | 'accountant' | null>(null);
   const [specializations, setSpecializations] = useState<string[]>([]);
   const [city, setCity] = useState('');
+  const [phone, setPhone] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [direction, setDirection] = useState(1);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const totalSteps = role === 'accountant' ? 5 : 3;
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('Снимката трябва да е до 2MB');
+        return;
+      }
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setAvatarPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +56,7 @@ export default function Register() {
 
     const fullName = `${firstName.trim()} ${lastName.trim()}`;
 
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -46,7 +64,11 @@ export default function Register() {
         data: {
           full_name: fullName,
           role,
-          ...(role === 'accountant' ? { specializations, city: city.trim() || null } : {}),
+          ...(role === 'accountant' ? {
+            specializations,
+            city: city.trim() || null,
+            phone: phone.trim() || null,
+          } : {}),
         },
       },
     });
@@ -57,11 +79,22 @@ export default function Register() {
       return;
     }
 
-    // If accountant, also insert into auditor_directory so they appear in search
-    // This happens via the handle_new_user trigger for accountant_profiles,
-    // but we also need an auditor_directory entry with source='platform'
-    // We'll update the profile and directory after signup confirmation.
-    // For now, the trigger handles accountant_profiles.
+    // Upload avatar if provided and user was created
+    if (avatarFile && signUpData.user) {
+      const fileExt = avatarFile.name.split('.').pop();
+      const filePath = `${signUpData.user.id}/avatar.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, avatarFile, { upsert: true });
+
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        // Update user metadata with avatar URL
+        await supabase.auth.updateUser({
+          data: { avatar_url: urlData.publicUrl },
+        });
+      }
+    }
 
     toast.success('Регистрацията е успешна! Проверете имейла си за потвърждение.');
     navigate('/login');
@@ -179,13 +212,43 @@ export default function Register() {
                 )}
 
                 {step === 4 && role === 'accountant' && (
-                  <motion.div key="step4city" custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25 }} className="space-y-4">
+                  <motion.div key="step4details" custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25 }} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="city" className="text-base font-medium flex items-center gap-2">
                         <MapPin className="h-4 w-4" /> Град *
                       </Label>
                       <Input id="city" required value={city} onChange={(e) => setCity(e.target.value)} placeholder="София" />
-                      <p className="text-xs text-muted-foreground">В кой град предлагате услугите си?</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" /> Телефон (по желание)
+                      </Label>
+                      <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+359 88 123 4567" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <Camera className="h-4 w-4" /> Снимка (по желание)
+                      </Label>
+                      <div className="flex items-center gap-4">
+                        {avatarPreview ? (
+                          <div className="relative">
+                            <img src={avatarPreview} alt="Preview" className="h-16 w-16 rounded-full object-cover border-2 border-primary/30" />
+                            <button type="button" onClick={() => { setAvatarFile(null); setAvatarPreview(null); }}
+                              className="absolute -top-1 -right-1 rounded-full bg-destructive p-0.5 text-destructive-foreground">
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/30">
+                            <Camera className="h-6 w-6 text-muted-foreground/50" />
+                          </div>
+                        )}
+                        <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                          {avatarPreview ? 'Смени снимка' : 'Качи снимка'}
+                        </Button>
+                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+                      </div>
+                      <p className="text-xs text-muted-foreground">Максимум 2MB, JPG или PNG</p>
                     </div>
                     <div className="flex gap-3">
                       <Button type="button" variant="outline" className="flex-1" onClick={goBack}>

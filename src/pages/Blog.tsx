@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Calendar, Clock, ArrowRight, BookOpen, Newspaper, Lightbulb, Scale, ChevronDown, ChevronUp, ExternalLink, FileText } from 'lucide-react';
+import { Search, Calendar, Clock, ArrowRight, BookOpen, Newspaper, Lightbulb, Scale, ExternalLink, FileText } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -13,21 +14,22 @@ type Category = 'all' | 'news' | 'tips' | 'guides';
 interface Article {
   id: string;
   title: string;
-  excerpt: string;
-  category: Category;
-  date: string;
-  readTime: string;
+  excerpt: string | null;
+  content: string | null;
+  category: string;
+  source_name: string | null;
+  source_url: string | null;
+  published_at: string;
 }
 
-const ARTICLES: Article[] = [
-  { id: '1', title: 'Промени в ЗДДС за 2026 г. — какво трябва да знаете', excerpt: 'Новите изменения в Закона за данък добавена стойност влизат в сила от 1 юли 2026 г.', category: 'news', date: '2026-02-20', readTime: '5 мин' },
-  { id: '2', title: '10 съвета за оптимизиране на данъците на вашата фирма', excerpt: 'Законни начини да намалите данъчната тежест и да увеличите печалбата си.', category: 'tips', date: '2026-02-18', readTime: '8 мин' },
-  { id: '3', title: 'Как да изберете правилния счетоводител за вашия бизнес', excerpt: 'Пълно ръководство за избор на счетоводител — на какво да обърнете внимание.', category: 'guides', date: '2026-02-15', readTime: '10 мин' },
-  { id: '4', title: 'Нови правила за касовите апарати от март 2026', excerpt: 'НАП въвежда нови изисквания за фискалните устройства.', category: 'news', date: '2026-02-12', readTime: '4 мин' },
-  { id: '5', title: 'Осигуровки за самоосигуряващи се лица — пълен гайд', excerpt: 'Всичко за осигурителните вноски — минимални и максимални прагове, срокове.', category: 'guides', date: '2026-02-10', readTime: '12 мин' },
-  { id: '6', title: '5 грешки в счетоводството, които струват скъпо', excerpt: 'Често допускани счетоводни грешки, които водят до глоби от НАП.', category: 'tips', date: '2026-02-08', readTime: '6 мин' },
-  { id: '7', title: 'Годишно приключване 2025 — стъпка по стъпка', excerpt: 'Подробно ръководство за годишното счетоводно приключване.', category: 'guides', date: '2026-02-05', readTime: '15 мин' },
-  { id: '8', title: 'Дигитализация на счетоводството — тенденции за 2026', excerpt: 'Как технологиите променят счетоводната професия.', category: 'news', date: '2026-02-01', readTime: '7 мин' },
+// Fallback static articles
+const STATIC_ARTICLES: Article[] = [
+  { id: '1', title: 'Промени в ЗДДС за 2026 г. — какво трябва да знаете', excerpt: 'Новите изменения в Закона за данък добавена стойност влизат в сила от 1 юли 2026 г.', content: null, category: 'news', source_name: null, source_url: null, published_at: '2026-02-20' },
+  { id: '2', title: '10 съвета за оптимизиране на данъците на вашата фирма', excerpt: 'Законни начини да намалите данъчната тежест и да увеличите печалбата си.', content: null, category: 'tips', source_name: null, source_url: null, published_at: '2026-02-18' },
+  { id: '3', title: 'Как да изберете правилния счетоводител за вашия бизнес', excerpt: 'Пълно ръководство за избор на счетоводител — на какво да обърнете внимание.', content: null, category: 'guides', source_name: null, source_url: null, published_at: '2026-02-15' },
+  { id: '4', title: 'Нови правила за касовите апарати от март 2026', excerpt: 'НАП въвежда нови изисквания за фискалните устройства.', content: null, category: 'news', source_name: null, source_url: null, published_at: '2026-02-12' },
+  { id: '5', title: 'Осигуровки за самоосигуряващи се лица — пълен гайд', excerpt: 'Всичко за осигурителните вноски — минимални и максимални прагове, срокове.', content: null, category: 'guides', source_name: null, source_url: null, published_at: '2026-02-10' },
+  { id: '6', title: '5 грешки в счетоводството, които струват скъпо', excerpt: 'Често допускани счетоводни грешки, които водят до глоби от НАП.', content: null, category: 'tips', source_name: null, source_url: null, published_at: '2026-02-08' },
 ];
 
 const CATEGORY_ICONS = { news: Newspaper, tips: Lightbulb, guides: BookOpen };
@@ -45,87 +47,21 @@ interface LawEntry {
 }
 
 const LAWS: LawEntry[] = [
-  {
-    id: 'zs',
-    title: 'Закон за счетоводството',
-    shortName: 'ЗСч',
-    category: 'law',
-    sourceUrl: 'https://lex.bg/bg/laws/ldoc/2136697598',
-    source: 'lex.bg',
-    summary: 'Урежда изискванията към счетоводното отчитане, счетоводните стандарти, финансовите отчети и тяхната публичност. Определя категориите предприятия и приложимите стандарти.',
-  },
-  {
-    id: 'zdds',
-    title: 'Закон за данък върху добавената стойност',
-    shortName: 'ЗДДС',
-    category: 'law',
-    sourceUrl: 'https://nra.bg/wps/portal/nra/zakonodatelstvo/zakonodatelstvo_priority/11e9f37c-163e-4951-a43b-6018591e6fa7',
-    source: 'nra.bg',
-    summary: 'Регламентира облагането с ДДС — регистрация, ставки, приспадане на данъчен кредит, освободени доставки, вътреобщностни придобивания и доставки.',
-  },
-  {
-    id: 'zkpo',
-    title: 'Закон за корпоративното подоходно облагане',
-    shortName: 'ЗКПО',
-    category: 'law',
-    sourceUrl: 'https://lex.bg/laws/ldoc/2135540562',
-    source: 'lex.bg',
-    summary: 'Определя облагането на печалбите на юридическите лица — корпоративен данък 10%, данък при източника, преобразувания на финансовия резултат, данъчни амортизации.',
-  },
-  {
-    id: 'zddfl',
-    title: 'Закон за данъците върху доходите на физическите лица',
-    shortName: 'ЗДДФЛ',
-    category: 'law',
-    sourceUrl: 'https://www.lex.bg/laws/ldoc/2135538631',
-    source: 'lex.bg',
-    summary: 'Регулира облагането на доходите на физическите лица — трудови, от стопанска дейност, наеми, дивиденти. Плоска ставка от 10%.',
-  },
-  {
-    id: 'kso',
-    title: 'Кодекс за социално осигуряване',
-    shortName: 'КСО',
-    category: 'law',
-    sourceUrl: 'https://www.lex.bg/laws/ldoc/1597824512',
-    source: 'lex.bg',
-    summary: 'Урежда държавното обществено осигуряване — пенсии, болнични, майчинство, безработица, трудови злополуки. Определя осигурителни вноски и прагове.',
-  },
-  {
-    id: 'tz',
-    title: 'Търговски закон',
-    shortName: 'ТЗ',
-    category: 'law',
-    sourceUrl: 'https://lex.bg/laws/ldoc/-14917630',
-    source: 'lex.bg',
-    summary: 'Основният закон, уреждащ търговската дейност — видове търговски дружества (ЕТ, ООД, АД), учредяване, управление, преобразуване и ликвидация.',
-  },
-  {
-    id: 'nss',
-    title: 'Национални счетоводни стандарти (НСС)',
-    category: 'standard',
-    sourceUrl: 'https://kik-info.com/normativna-baza/nss/',
-    source: 'kik-info.com',
-    summary: 'Комплект от стандарти, приложими за предприятия, които не прилагат МСФО. Включват НСС 1-42 — отчитане на приходи, разходи, ДМА, НМА, лизинг, провизии и др.',
-  },
-  {
-    id: 'ifrs',
-    title: 'Международни стандарти за финансово отчитане (МСФО)',
-    category: 'international',
-    sourceUrl: 'https://eur-lex.europa.eu/BG/legal-content/summary/international-financial-reporting-standards-ifrs-adopted-by-the-european-union.html',
-    source: 'eur-lex.europa.eu',
-    summary: 'МСФО, приети от ЕС — задължителни за публични дружества и консолидирани отчети. Включват МСФО 1-17 и МСС 1-41. Осигуряват единна рамка за финансово отчитане в ЕС.',
-  },
+  { id: 'zs', title: 'Закон за счетоводството', shortName: 'ЗСч', category: 'law', sourceUrl: 'https://lex.bg/bg/laws/ldoc/2136697598', source: 'lex.bg', summary: 'Урежда изискванията към счетоводното отчитане, счетоводните стандарти, финансовите отчети и тяхната публичност.' },
+  { id: 'zdds', title: 'Закон за данък върху добавената стойност', shortName: 'ЗДДС', category: 'law', sourceUrl: 'https://nra.bg/wps/portal/nra/zakonodatelstvo/zakonodatelstvo_priority/11e9f37c-163e-4951-a43b-6018591e6fa7', source: 'nra.bg', summary: 'Регламентира облагането с ДДС — регистрация, ставки, приспадане на данъчен кредит, освободени доставки.' },
+  { id: 'zkpo', title: 'Закон за корпоративното подоходно облагане', shortName: 'ЗКПО', category: 'law', sourceUrl: 'https://lex.bg/laws/ldoc/2135540562', source: 'lex.bg', summary: 'Определя облагането на печалбите на юридическите лица — корпоративен данък 10%, данък при източника.' },
+  { id: 'zddfl', title: 'Закон за данъците върху доходите на физическите лица', shortName: 'ЗДДФЛ', category: 'law', sourceUrl: 'https://www.lex.bg/laws/ldoc/2135538631', source: 'lex.bg', summary: 'Регулира облагането на доходите на физическите лица. Плоска ставка от 10%.' },
+  { id: 'kso', title: 'Кодекс за социално осигуряване', shortName: 'КСО', category: 'law', sourceUrl: 'https://www.lex.bg/laws/ldoc/1597824512', source: 'lex.bg', summary: 'Урежда държавното обществено осигуряване — пенсии, болнични, майчинство, безработица.' },
+  { id: 'tz', title: 'Търговски закон', shortName: 'ТЗ', category: 'law', sourceUrl: 'https://lex.bg/laws/ldoc/-14917630', source: 'lex.bg', summary: 'Основният закон, уреждащ търговската дейност — видове търговски дружества, учредяване, управление.' },
+  { id: 'nss', title: 'Национални счетоводни стандарти (НСС)', category: 'standard', sourceUrl: 'https://kik-info.com/normativna-baza/nss/', source: 'kik-info.com', summary: 'Комплект от стандарти, приложими за предприятия, които не прилагат МСФО.' },
+  { id: 'ifrs', title: 'Международни стандарти за финансово отчитане (МСФО)', category: 'international', sourceUrl: 'https://eur-lex.europa.eu/BG/legal-content/summary/international-financial-reporting-standards-ifrs-adopted-by-the-european-union.html', source: 'eur-lex.europa.eu', summary: 'МСФО, приети от ЕС — задължителни за публични дружества и консолидирани отчети.' },
 ];
 
-const CATEGORY_LAW_LABELS: Record<string, string> = {
-  law: 'Закон',
-  standard: 'Стандарт',
-  international: 'Международен',
-};
+const CATEGORY_LAW_LABELS: Record<string, string> = { law: 'Закон', standard: 'Стандарт', international: 'Международен' };
 
 const NRA_NEWS = [
   { title: 'Данъчно-осигурителен календар 2026', url: 'https://nra.bg/wps/portal/nra/nachalo', description: 'Актуален календар с крайни срокове за деклариране и плащане на данъци и осигуровки.' },
-  { title: 'Актуални новини от НАП', url: 'https://nra.bg/wps/portal/nra/nachalo', description: 'Последни съобщения, промени в законодателството и указания от Националната агенция за приходите.' },
+  { title: 'Актуални новини от НАП', url: 'https://nra.bg/wps/portal/nra/nachalo', description: 'Последни съобщения, промени в законодателството и указания от НАП.' },
 ];
 
 export default function Blog() {
@@ -133,14 +69,40 @@ export default function Blog() {
   const [category, setCategory] = useState<Category>('all');
   const [activeTab, setActiveTab] = useState<'articles' | 'laws'>('articles');
   const [lawFilter, setLawFilter] = useState<'all' | 'law' | 'standard' | 'international'>('all');
+  const [articles, setArticles] = useState<Article[]>(STATIC_ARTICLES);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
-  const filtered = ARTICLES.filter((a) => {
-    const matchSearch = a.title.toLowerCase().includes(search.toLowerCase()) || a.excerpt.toLowerCase().includes(search.toLowerCase());
+  useEffect(() => {
+    fetchArticles();
+  }, []);
+
+  const fetchArticles = async () => {
+    const { data } = await supabase
+      .from('blog_articles')
+      .select('*')
+      .order('published_at', { ascending: false })
+      .limit(50);
+
+    if (data && data.length > 0) {
+      setArticles([...data as Article[], ...STATIC_ARTICLES]);
+    }
+  };
+
+  const filtered = articles.filter((a) => {
+    const matchSearch = a.title.toLowerCase().includes(search.toLowerCase()) || (a.excerpt || '').toLowerCase().includes(search.toLowerCase());
     const matchCat = category === 'all' || a.category === category;
     return matchSearch && matchCat;
   });
 
   const filteredLaws = LAWS.filter((l) => lawFilter === 'all' || l.category === lawFilter);
+
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleDateString('bg-BG');
+    } catch {
+      return dateStr;
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -185,11 +147,11 @@ export default function Blog() {
                       <div className="flex items-center justify-between">
                         <Badge variant="secondary" className="flex items-center gap-1">
                           {Icon && <Icon className="h-3 w-3" />}
-                          {CATEGORY_LABELS[article.category]}
+                          {CATEGORY_LABELS[article.category] || article.category}
                         </Badge>
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Calendar className="h-3 w-3" />
-                          {new Date(article.date).toLocaleDateString('bg-BG')}
+                          {formatDate(article.published_at)}
                         </span>
                       </div>
                       <CardTitle className="mt-3 text-lg leading-tight">{article.title}</CardTitle>
@@ -197,12 +159,14 @@ export default function Blog() {
                     <CardContent className="flex flex-1 flex-col justify-between">
                       <p className="text-sm text-muted-foreground">{article.excerpt}</p>
                       <div className="mt-4 flex items-center justify-between">
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" /> {article.readTime}
-                        </span>
-                        <Button variant="ghost" size="sm" className="text-primary">
-                          Прочети <ArrowRight className="ml-1 h-3 w-3" />
-                        </Button>
+                        {article.source_name && (
+                          <span className="text-xs text-muted-foreground">Източник: {article.source_name}</span>
+                        )}
+                        {article.content && (
+                          <Button variant="ghost" size="sm" className="text-primary" onClick={() => setSelectedArticle(article)}>
+                            Прочети <ArrowRight className="ml-1 h-3 w-3" />
+                          </Button>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -212,12 +176,28 @@ export default function Blog() {
             {filtered.length === 0 && (
               <p className="py-12 text-center text-muted-foreground">Няма намерени статии.</p>
             )}
+
+            {/* Article detail dialog */}
+            {selectedArticle && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setSelectedArticle(null)}>
+                <div className="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+                  <Badge variant="secondary" className="mb-3">
+                    {CATEGORY_LABELS[selectedArticle.category] || selectedArticle.category}
+                  </Badge>
+                  <h2 className="text-2xl font-bold mb-2">{selectedArticle.title}</h2>
+                  <p className="text-sm text-muted-foreground mb-4">{formatDate(selectedArticle.published_at)}{selectedArticle.source_name && ` • ${selectedArticle.source_name}`}</p>
+                  <div className="prose prose-sm max-w-none text-foreground whitespace-pre-line">
+                    {selectedArticle.content}
+                  </div>
+                  <Button className="mt-6" variant="outline" onClick={() => setSelectedArticle(null)}>Затвори</Button>
+                </div>
+              </div>
+            )}
           </>
         )}
 
         {activeTab === 'laws' && (
           <div className="mx-auto max-w-4xl space-y-8">
-            {/* Filter tabs */}
             <Tabs value={lawFilter} onValueChange={(v) => setLawFilter(v as any)}>
               <TabsList className="mx-auto flex w-fit">
                 <TabsTrigger value="all">Всички</TabsTrigger>
@@ -227,7 +207,6 @@ export default function Blog() {
               </TabsList>
             </Tabs>
 
-            {/* Laws grid */}
             <div className="grid gap-4 sm:grid-cols-2">
               {filteredLaws.map((law) => (
                 <Card key={law.id} className="transition-all hover:shadow-lg hover:border-primary/30">
@@ -242,14 +221,8 @@ export default function Blog() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <p className="text-sm text-muted-foreground">{law.summary}</p>
-                    <a
-                      href={law.sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                      Пълен текст на {law.source}
+                    <a href={law.sourceUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+                      <ExternalLink className="h-3.5 w-3.5" /> Пълен текст на {law.source}
                     </a>
                   </CardContent>
                 </Card>
@@ -260,11 +233,9 @@ export default function Blog() {
               <p className="py-8 text-center text-muted-foreground">Няма намерени документи.</p>
             )}
 
-            {/* NRA section */}
             <div className="pt-4">
               <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                НАП — Новини и календар
+                <FileText className="h-5 w-5 text-primary" /> НАП — Новини и календар
               </h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 {NRA_NEWS.map((item, i) => (
@@ -274,14 +245,8 @@ export default function Blog() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <p className="text-sm text-muted-foreground">{item.description}</p>
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        Отвори в nra.bg
+                      <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+                        <ExternalLink className="h-3.5 w-3.5" /> Отвори в nra.bg
                       </a>
                     </CardContent>
                   </Card>
