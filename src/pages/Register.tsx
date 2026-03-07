@@ -84,6 +84,7 @@ export default function Register() {
   const canProceedStep1 = role !== null;
   const canProceedStep2 = firstName.trim().length > 1 && lastName.trim().length > 1;
   const canProceedStep3Acc = specializations.length > 0;
+  const canProceedStep4City = city.trim().length > 1;
 
   return (
     <div className="min-h-screen bg-background">
@@ -177,7 +178,27 @@ export default function Register() {
                   </motion.div>
                 )}
 
-                {((step === 3 && role === 'client') || (step === 4 && role === 'accountant')) && (
+                {step === 4 && role === 'accountant' && (
+                  <motion.div key="step4city" custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25 }} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="city" className="text-base font-medium flex items-center gap-2">
+                        <MapPin className="h-4 w-4" /> Град *
+                      </Label>
+                      <Input id="city" required value={city} onChange={(e) => setCity(e.target.value)} placeholder="София" />
+                      <p className="text-xs text-muted-foreground">В кой град предлагате услугите си?</p>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button type="button" variant="outline" className="flex-1" onClick={goBack}>
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Назад
+                      </Button>
+                      <Button type="button" className="flex-1" disabled={!canProceedStep4City} onClick={goNext}>
+                        Продължи <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {((step === 3 && role === 'client') || (step === 5 && role === 'accountant')) && (
                   <motion.div key="stepFinal" custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25 }} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">Имейл *</Label>
