@@ -129,6 +129,18 @@ export default function SearchAccountants() {
               {SPECIALIZATIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+            <SelectTrigger className="w-[200px]">
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Сортиране" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name-asc">Име (А-Я)</SelectItem>
+              <SelectItem value="name-desc">Име (Я-А)</SelectItem>
+              <SelectItem value="rating-desc">Рейтинг (най-висок)</SelectItem>
+              <SelectItem value="rating-asc">Рейтинг (най-нисък)</SelectItem>
+            </SelectContent>
+          </Select>
           {(query || cityFilter !== 'all' || specFilter !== 'all') && (
             <Button variant="ghost" size="sm" onClick={clearFilters}>Изчисти филтрите</Button>
           )}
@@ -151,8 +163,8 @@ export default function SearchAccountants() {
               {filteredPlatform.length === 0 ? (
                 <div className="text-center text-muted-foreground py-10">Няма намерени счетоводители в платформата.</div>
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredPlatform.map((d) => (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {sortEntries(filteredPlatform, sortBy).map((d) => (
                     <Card key={d.id} className="transition-all hover:shadow-lg hover:border-primary/30">
                       <CardContent className="p-5">
                         <div className="flex items-center gap-3">
@@ -194,7 +206,7 @@ export default function SearchAccountants() {
                 <div className="text-center text-muted-foreground py-10">Няма намерени одитори с тези критерии.</div>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredIdes.map((d) => (
+                  {sortEntries(filteredIdes, sortBy).map((d) => (
                     <Card key={d.id} className="transition-all hover:shadow-lg hover:border-primary/30">
                       <CardContent className="p-5">
                         <div className="flex items-center gap-3">
