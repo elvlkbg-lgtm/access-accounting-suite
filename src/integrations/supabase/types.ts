@@ -125,6 +125,42 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_articles: {
+        Row: {
+          category: string
+          content: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published_at: string
+          source_name: string | null
+          source_url: string | null
+          title: string
+        }
+        Insert: {
+          category?: string
+          content?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string
+          source_name?: string | null
+          source_url?: string | null
+          title: string
+        }
+        Update: {
+          category?: string
+          content?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string
+          source_name?: string | null
+          source_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       consultations: {
         Row: {
           accountant_id: string
