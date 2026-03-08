@@ -15,42 +15,6 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AccountantReviews from '@/components/AccountantReviews';
 
-/* ── Services data ── */
-const SERVICE_CARDS = [
-  {
-    icon: Star,
-    title: 'Пълно счетоводство',
-    price: '180–220 €',
-    description: 'Цялостно счетоводно обслужване',
-    details: 'Текущо осчетоводяване на документи, годишно счетоводно приключване, изготвяне на финансови отчети и справки за управлението. Работим с всички видове предприятия — от еднолични търговци до големи компании.',
-    searchQuery: 'Пълно счетоводство',
-  },
-  {
-    icon: FileText,
-    title: 'Счетоводни услуги Данъци',
-    price: '80–100 €',
-    description: 'Данъчни декларации и планиране',
-    details: 'Професионално данъчно планиране и оптимизация. Подготовка и подаване на данъчни декларации по ДДС, ЗДДФЛ и ЗКПО. Представителство пред НАП при проверки и ревизии. Минимизиране на данъчната тежест при спазване на закона.',
-    searchQuery: 'Данъчно обслужване',
-  },
-  {
-    icon: Users,
-    title: 'Счетоводни услуги ТРЗ и Човешки ресурси',
-    price: '100–150 €',
-    description: 'ТРЗ, кадри, осигуровки',
-    details: 'Изготвяне на ведомости за заплати, трудови договори, допълнителни споразумения и заповеди за прекратяване. Подаване на осигурителни декларации, болнични листове и документи към НАП и НОИ. Цялостно кадрово обслужване.',
-    searchQuery: 'Човешки ресурси',
-  },
-  {
-    icon: Shield,
-    title: 'Счетоводни услуги Одит',
-    price: '250–300 €',
-    description: 'Финансов одит и ревизии',
-    details: 'Независима проверка на финансовите отчети съгласно международните стандарти. Вътрешен одит и контрол, ревизии по искане на ръководството, одит за съответствие с нормативната уредба. Резултатите помагат за по-информирани управленски решения.',
-    searchQuery: 'Одит',
-  },
-];
-
 const SPECIALIZATIONS = ['Пълно счетоводство', 'Данъчно обслужване', 'ДДС', 'ЗДДФЛ', 'ЗКПО', 'Човешки ресурси', 'Заплати', 'Одит', 'Осигуровки', 'ТРЗ'];
 
 interface DirectoryEntry {
@@ -89,14 +53,14 @@ export default function Index() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
-  const serviceParam = searchParams.get('service');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [cityFilter, setCityFilter] = useState('all');
   const [specFilter, setSpecFilter] = useState('all');
   const [directory, setDirectory] = useState<DirectoryEntry[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedService, setExpandedService] = useState<string | null>(null);
+  const [selectedAccountant, setSelectedAccountant] = useState<DirectoryEntry | null>(null);
+  const [reviewCounts, setReviewCounts] = useState<Record<string, { avg: number; count: number }>>({});
   const [selectedAccountant, setSelectedAccountant] = useState<DirectoryEntry | null>(null);
   const [reviewCounts, setReviewCounts] = useState<Record<string, { avg: number; count: number }>>({});
 
@@ -104,17 +68,6 @@ export default function Index() {
     fetchAll();
   }, []);
 
-  useEffect(() => {
-    if (serviceParam) {
-      const match = SERVICE_CARDS.find(s => s.title.includes(serviceParam) || s.searchQuery.includes(serviceParam));
-      if (match) {
-        setExpandedService(match.title);
-        setTimeout(() => {
-          document.querySelector('#services-section')?.scrollIntoView({ behavior: 'smooth' });
-        }, 200);
-      }
-    }
-  }, [serviceParam]);
 
   const fetchAll = async () => {
     setLoading(true);
