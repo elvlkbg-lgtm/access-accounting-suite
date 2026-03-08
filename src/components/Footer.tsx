@@ -19,6 +19,7 @@ export default function Footer() {
             <h4 className="mb-3 font-semibold">Платформа</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/search" className="hover:text-foreground transition-colors">Търси счетоводител</Link></li>
+              <li><Link to="/services" className="hover:text-foreground transition-colors">Услуги и цени</Link></li>
               <li><Link to="/calendar" className="hover:text-foreground transition-colors">Календар</Link></li>
               <li><Link to="/consultations" className="hover:text-foreground transition-colors">Консултации</Link></li>
               <li><Link to="/calculators" className="hover:text-foreground transition-colors">Калкулатори</Link></li>
@@ -30,10 +31,10 @@ export default function Footer() {
           <div>
             <h4 className="mb-3 font-semibold">Услуги</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/?service=Пълно" className="hover:text-foreground transition-colors">Пълно счетоводство</Link></li>
-              <li><Link to="/?service=Данъци" className="hover:text-foreground transition-colors">Данъци</Link></li>
-              <li><Link to="/?service=ТРЗ" className="hover:text-foreground transition-colors">ТРЗ и Човешки ресурси</Link></li>
-              <li><Link to="/?service=Одит" className="hover:text-foreground transition-colors">Одит</Link></li>
+              <li><Link to="/services?category=Пълно счетоводство" className="hover:text-foreground transition-colors">Пълно счетоводство</Link></li>
+              <li><Link to="/services?category=Данъци" className="hover:text-foreground transition-colors">Данъци</Link></li>
+              <li><Link to="/services?category=ТРЗ и Човешки ресурси" className="hover:text-foreground transition-colors">ТРЗ и Човешки ресурси</Link></li>
+              <li><Link to="/services?category=Одит" className="hover:text-foreground transition-colors">Одит</Link></li>
             </ul>
           </div>
           <div>
