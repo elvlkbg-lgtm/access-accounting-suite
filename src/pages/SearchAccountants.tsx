@@ -52,6 +52,7 @@ export default function SearchAccountants() {
   const [cities, setCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+  const [nameToAccProfileId, setNameToAccProfileId] = useState<Record<string, string>>({});
   const [sortBy, setSortBy] = useState<SortOption>('name-asc');
 
   useEffect(() => {
@@ -61,11 +62,18 @@ export default function SearchAccountants() {
 
   const fetchAll = async () => {
     setLoading(true);
-    const { data: dirData } = await supabase
-      .from('auditor_directory')
-      .select('id, full_name, city, specialization, qualification, ides_number, source, email');
+    const [{ data: dirData }, { data: accData }] = await Promise.all([
+      supabase.from('auditor_directory').select('id, full_name, city, specialization, qualification, ides_number, source, email'),
+      supabase.from('accountant_profiles').select('id, display_name, user_id').eq('is_approved', true),
+    ]);
     const entries = (dirData as any[]) || [];
     setDirectory(entries);
+    // Map auditor_directory full_name -> accountant_profiles id for platform entries
+    const mapping: Record<string, string> = {};
+    (accData || []).forEach((ap: any) => {
+      if (ap.display_name) mapping[ap.display_name] = ap.id;
+    });
+    setNameToAccProfileId(mapping);
     const uniqueCities = [...new Set(entries.map((d: any) => d.city).filter(Boolean))] as string[];
     uniqueCities.sort((a, b) => a.localeCompare(b, 'bg'));
     setCities(uniqueCities);
