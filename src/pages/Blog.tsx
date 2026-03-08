@@ -287,7 +287,7 @@ export default function Blog() {
             <div className="mb-6 text-center">
               <HelpCircle className="mx-auto h-10 w-10 text-primary mb-3" />
               <h2 className="text-2xl font-bold">Често задавани въпроси</h2>
-              <p className="mt-1 text-muted-foreground">Отговори на най-честите въпроси за счетоводните услуги • Цени в EUR (€)</p>
+              <p className="mt-1 text-muted-foreground">Отговори на най-честите въпроси за счетоводните услуги</p>
               <p className="mt-1 text-xs text-muted-foreground">Източник: <a href="https://portal.nra.bg/details/questions-and-answers" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">portal.nra.bg</a> • Обновява се ежедневно в 12:00</p>
             </div>
             <Accordion type="single" collapsible className="space-y-2">

@@ -337,7 +337,7 @@ export default function AccountantDashboard() {
               <CardContent className="space-y-3">
                 <Input placeholder="Име на услугата" value={newServiceName} onChange={(e) => setNewServiceName(e.target.value)} />
                 <Input placeholder="Описание" value={newServiceDesc} onChange={(e) => setNewServiceDesc(e.target.value)} />
-                <Input placeholder="Цена (лв.)" type="number" value={newServicePrice} onChange={(e) => setNewServicePrice(e.target.value)} />
+                <Input placeholder="Цена (€)" type="number" value={newServicePrice} onChange={(e) => setNewServicePrice(e.target.value)} />
                 <Button onClick={addService}><Plus className="mr-2 h-4 w-4" />Добави</Button>
               </CardContent>
             </Card>
@@ -349,7 +349,7 @@ export default function AccountantDashboard() {
                     {s.description && <p className="text-sm text-muted-foreground">{s.description}</p>}
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="font-semibold text-primary">{Number(s.price).toFixed(2)} лв.</span>
+                    <span className="font-semibold text-primary">{Number(s.price).toFixed(2)} €</span>
                     <Button size="icon" variant="ghost" onClick={() => deleteService(s.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                   </div>
                 </CardContent>
