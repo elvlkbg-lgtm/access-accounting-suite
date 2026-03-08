@@ -63,7 +63,7 @@ export type Database = {
           created_at: string
           id: string
           rating: number
-          reviewer_id: string
+          reviewer_id: string | null
         }
         Insert: {
           accountant_id: string
@@ -71,7 +71,7 @@ export type Database = {
           created_at?: string
           id?: string
           rating: number
-          reviewer_id: string
+          reviewer_id?: string | null
         }
         Update: {
           accountant_id?: string
@@ -79,7 +79,7 @@ export type Database = {
           created_at?: string
           id?: string
           rating?: number
-          reviewer_id?: string
+          reviewer_id?: string | null
         }
         Relationships: []
       }

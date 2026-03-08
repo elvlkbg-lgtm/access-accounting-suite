@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, MapPin, Filter, Users, BookOpen, ArrowUpDown, Heart } from 'lucide-react';
+import { Search, MapPin, Filter, Users, BookOpen, ArrowUpDown, Heart, Star } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { toast } from 'sonner';
@@ -33,12 +33,49 @@ const sortEntries = (entries: DirectoryEntry[], sort: SortOption): DirectoryEntr
     switch (sort) {
       case 'name-asc': return a.full_name.localeCompare(b.full_name, 'bg');
       case 'name-desc': return b.full_name.localeCompare(a.full_name, 'bg');
-      case 'rating-desc': return (b.rating || 0) - (a.rating || 0);
-      case 'rating-asc': return (a.rating || 0) - (b.rating || 0);
+      case 'rating-desc': {
+        const aHas = (a.rating || 0) > 0 ? 1 : 0;
+        const bHas = (b.rating || 0) > 0 ? 1 : 0;
+        if (bHas !== aHas) return bHas - aHas;
+        return (b.rating || 0) - (a.rating || 0);
+      }
+      case 'rating-asc': {
+        const aHas = (a.rating || 0) > 0 ? 1 : 0;
+        const bHas = (b.rating || 0) > 0 ? 1 : 0;
+        if (aHas !== bHas) return aHas - bHas;
+        return (a.rating || 0) - (b.rating || 0);
+      }
       default: return 0;
     }
   });
 };
+
+function InlineStarRating({ value, onRate }: { value: number; onRate: (v: number) => void }) {
+  const [hover, setHover] = useState(0);
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          className="cursor-pointer"
+          onClick={(e) => { e.stopPropagation(); onRate(star); }}
+          onMouseEnter={() => setHover(star)}
+          onMouseLeave={() => setHover(0)}
+        >
+          <Star
+            className={`h-4 w-4 transition-colors ${
+              star <= (hover || value)
+                ? 'fill-yellow-400 text-yellow-400'
+                : 'text-muted-foreground/30'
+            }`}
+          />
+        </button>
+      ))}
+      {value > 0 && <span className="text-xs text-muted-foreground ml-1">{value.toFixed(1)}</span>}
+    </div>
+  );
+}
 
 const SPECIALIZATIONS = ['Одит', 'Човешки ресурси', 'Данъчно обслужване', 'Пълно счетоводство', 'ДДС', 'Заплати', 'ЗДДФЛ', 'ЗКПО'];
 
@@ -69,7 +106,7 @@ export default function SearchAccountants() {
       supabase.from('accountant_reviews').select('accountant_id, rating'),
     ]);
 
-    // Build average rating per accountant_profile id from reviews
+    // Build average rating per accountant_id (could be accountant_profile id or directory id)
     const ratingMap: Record<string, number> = {};
     if (reviewData && reviewData.length > 0) {
       const sums: Record<string, { total: number; count: number }> = {};
@@ -85,19 +122,16 @@ export default function SearchAccountants() {
 
     // Map display_name -> accountant_profiles id & rating
     const mapping: Record<string, string> = {};
-    const nameToRating: Record<string, number> = {};
     (accData || []).forEach((ap: any) => {
       if (ap.display_name) {
         mapping[ap.display_name] = ap.id;
-        // Use review average if available, otherwise profile rating
-        nameToRating[ap.display_name] = ratingMap[ap.id] ?? (ap.rating || 0);
       }
     });
 
-    // Attach rating to directory entries
+    // Attach rating to directory entries (check by accountant_profile id or directory entry id)
     const entries = ((dirData as any[]) || []).map((d: any) => ({
       ...d,
-      rating: nameToRating[d.full_name] ?? 0,
+      rating: ratingMap[mapping[d.full_name]] ?? ratingMap[d.id] ?? 0,
     }));
 
     setDirectory(entries);
@@ -123,6 +157,25 @@ export default function SearchAccountants() {
       await supabase.from('favorite_accountants').insert({ user_id: user.id, accountant_id: accountantId });
       setFavoriteIds(prev => new Set(prev).add(accountantId));
       toast.success('Добавен в предпочитани');
+    }
+  };
+
+  const rateAccountant = async (accountantId: string, rating: number) => {
+    const insertData: any = { accountant_id: accountantId, rating };
+    if (user) insertData.reviewer_id = user.id;
+    const { error } = await supabase.from('accountant_reviews').insert(insertData);
+    if (error) {
+      toast.error('Грешка при оценяване');
+    } else {
+      toast.success('Благодарим за оценката!');
+      // Update local rating
+      setDirectory(prev => prev.map(d => {
+        if (d.id === accountantId || nameToAccProfileId[d.full_name] === accountantId) {
+          const oldRating = d.rating || 0;
+          return { ...d, rating: oldRating > 0 ? (oldRating + rating) / 2 : rating };
+        }
+        return d;
+      }));
     }
   };
 
@@ -245,6 +298,9 @@ export default function SearchAccountants() {
                           ))}
                         </div>
                         {d.qualification && <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{d.qualification}</p>}
+                        <div className="mt-2">
+                          <InlineStarRating value={d.rating || 0} onRate={(v) => rateAccountant(nameToAccProfileId[d.full_name] || d.id, v)} />
+                        </div>
                         <div className="mt-4 flex gap-2">
                           <Button className="flex-1" size="sm" onClick={() => navigate(`/contact-accountant/${d.id}`)}>
                             Свържи се
@@ -303,6 +359,9 @@ export default function SearchAccountants() {
                         {d.ides_number && <p className="text-xs text-muted-foreground">ИДЕС №{d.ides_number}</p>}
                         {d.email && <p className="text-xs text-muted-foreground">✉ {d.email}</p>}
                         {d.phone && <p className="text-xs text-muted-foreground">📞 {d.phone}</p>}
+                        <div className="mt-2">
+                          <InlineStarRating value={d.rating || 0} onRate={(v) => rateAccountant(d.id, v)} />
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
