@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, MapPin, Filter, Users, BookOpen, ArrowUpDown } from 'lucide-react';
+import { Search, MapPin, Filter, Users, BookOpen, ArrowUpDown, Heart } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { toast } from 'sonner';
 
 type SortOption = 'name-asc' | 'name-desc' | 'rating-desc' | 'rating-asc';
 
@@ -42,17 +44,20 @@ const SPECIALIZATIONS = ['Одит', 'Човешки ресурси', 'Данъ�
 export default function SearchAccountants() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [cityFilter, setCityFilter] = useState('all');
   const [specFilter, setSpecFilter] = useState('all');
   const [directory, setDirectory] = useState<DirectoryEntry[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [sortBy, setSortBy] = useState<SortOption>('name-asc');
 
   useEffect(() => {
     fetchAll();
-  }, []);
+    if (user) fetchFavorites();
+  }, [user]);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -65,6 +70,24 @@ export default function SearchAccountants() {
     uniqueCities.sort((a, b) => a.localeCompare(b, 'bg'));
     setCities(uniqueCities);
     setLoading(false);
+  };
+
+  const fetchFavorites = async () => {
+    const { data } = await supabase.from('favorite_accountants').select('accountant_id').eq('user_id', user!.id);
+    if (data) setFavoriteIds(new Set(data.map(f => f.accountant_id)));
+  };
+
+  const toggleFavorite = async (accountantId: string) => {
+    if (!user) { navigate('/login'); return; }
+    if (favoriteIds.has(accountantId)) {
+      await supabase.from('favorite_accountants').delete().eq('user_id', user.id).eq('accountant_id', accountantId);
+      setFavoriteIds(prev => { const n = new Set(prev); n.delete(accountantId); return n; });
+      toast.success('Премахнат от предпочитани');
+    } else {
+      await supabase.from('favorite_accountants').insert({ user_id: user.id, accountant_id: accountantId });
+      setFavoriteIds(prev => new Set(prev).add(accountantId));
+      toast.success('Добавен в предпочитани');
+    }
   };
 
   const filteredIdes = directory.filter((d) => {
