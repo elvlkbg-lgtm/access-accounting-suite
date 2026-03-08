@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, MessageCircle, ClipboardList, Users, Send, Upload, Plus, Trash2, ExternalLink, Calendar, BarChart3 } from 'lucide-react';
+import { FileText, MessageCircle, ClipboardList, Users, Send, Upload, Plus, Trash2, ExternalLink, Calendar, BarChart3, Camera, Phone, User } from 'lucide-react';
 import OnlineStatusSelector from '@/components/OnlineStatusSelector';
 import Navbar from '@/components/Navbar';
 import MessagingPanel from '@/components/MessagingPanel';
@@ -34,10 +34,13 @@ export default function AccountantDashboard() {
 
   // Profile form
   const [bio, setBio] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [specialization, setSpecialization] = useState<string[]>([]);
   const [experience, setExperience] = useState(0);
   const [location, setLocation] = useState('');
-
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   // New service form
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceDesc, setNewServiceDesc] = useState('');
@@ -81,9 +84,16 @@ export default function AccountantDashboard() {
     if (data) {
       setAccountantProfile(data);
       setBio(data.bio || '');
+      setDisplayName(data.display_name || '');
       setSpecialization(data.specialization || []);
       setExperience(data.experience_years || 0);
       setLocation(data.location || '');
+      // Fetch phone and avatar from profiles table
+      const { data: profileData } = await supabase.from('profiles').select('phone, avatar_url').eq('id', user!.id).single();
+      if (profileData) {
+        setPhone(profileData.phone || '');
+        setAvatarUrl(profileData.avatar_url || '');
+      }
       await Promise.all([
         fetchRequests(data.id),
         fetchServices(data.id),
@@ -116,11 +126,35 @@ export default function AccountantDashboard() {
   };
 
   const updateProfile = async () => {
-    const { error } = await supabase.from('accountant_profiles').update({
-      bio, specialization, experience_years: experience, location,
+    const { error: accError } = await supabase.from('accountant_profiles').update({
+      bio, specialization, experience_years: experience, location, display_name: displayName,
     }).eq('id', accountantProfile.id);
-    if (error) toast.error('Грешка при запис');
+    
+    const { error: profError } = await supabase.from('profiles').update({
+      full_name: displayName, phone, avatar_url: avatarUrl || null,
+    }).eq('id', user!.id);
+
+    if (accError || profError) toast.error('Грешка при запис');
     else toast.success('Профилът е обновен');
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error('Файлът е твърде голям (макс. 2MB)'); return; }
+    if (!file.type.startsWith('image/')) { toast.error('Моля, изберете изображение'); return; }
+    
+    setUploadingAvatar(true);
+    const ext = file.name.split('.').pop();
+    const path = `${user!.id}/avatar.${ext}`;
+    
+    const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+    if (error) { toast.error('Грешка при качване'); setUploadingAvatar(false); return; }
+    
+    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
+    setAvatarUrl(urlData.publicUrl + '?t=' + Date.now());
+    setUploadingAvatar(false);
+    toast.success('Снимката е качена');
   };
 
   const addService = async () => {
@@ -236,7 +270,41 @@ export default function AccountantDashboard() {
           <TabsContent value="profile" className="mt-4">
             <Card>
               <CardHeader><CardTitle>Редактиране на профил</CardTitle></CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                {/* Avatar */}
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Профилна снимка" className="h-20 w-20 rounded-full object-cover border-2 border-primary/20" />
+                    ) : (
+                      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+                        <User className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                    )}
+                    <label className="absolute -bottom-1 -right-1 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow hover:bg-primary/90 transition-colors">
+                      <Camera className="h-3.5 w-3.5" />
+                      <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
+                    </label>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Профилна снимка</p>
+                    <p className="text-xs text-muted-foreground">JPEG или PNG, макс. 2MB</p>
+                  </div>
+                </div>
+
+                {/* Display name & phone */}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Име за показване</Label>
+                    <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Вашето име" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" /> Телефон</Label>
+                    <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+359 ..." />
+                  </div>
+                </div>
+
+                {/* Specializations */}
                 <div className="space-y-2">
                   <Label>Специализации</Label>
                   <div className="flex flex-wrap gap-2">
@@ -248,6 +316,7 @@ export default function AccountantDashboard() {
                     ))}
                   </div>
                 </div>
+
                 <div className="space-y-2"><Label>Описание</Label><Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={4} /></div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2"><Label>Години опит</Label><Input type="number" value={experience} onChange={(e) => setExperience(parseInt(e.target.value) || 0)} /></div>
