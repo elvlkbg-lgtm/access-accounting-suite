@@ -19,6 +19,7 @@ import Calculators from "./pages/Calculators";
 import Consultations from "./pages/Consultations";
 import AccountingCalendar from "./pages/AccountingCalendar";
 import ContactAccountant from "./pages/ContactAccountant";
+import SearchAccountants from "./pages/SearchAccountants";
 
 
 const queryClient = new QueryClient();
