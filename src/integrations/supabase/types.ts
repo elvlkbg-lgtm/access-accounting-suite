@@ -256,6 +256,33 @@ export type Database = {
           },
         ]
       }
+      faq_items: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          question: string
+          source_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          question: string
+          source_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          question?: string
+          source_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       favorite_accountants: {
         Row: {
           accountant_id: string
