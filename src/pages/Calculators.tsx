@@ -5,9 +5,12 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Banknote, Receipt, FileText } from 'lucide-react';
+import { Banknote, Receipt, FileText, HeartPulse, Percent, Calculator } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import HealthInsuranceCalculator from '@/components/calculators/HealthInsuranceCalculator';
+import InterestCalculator from '@/components/calculators/InterestCalculator';
+import IncomeTaxCalculator from '@/components/calculators/IncomeTaxCalculator';
 
 /* ──── Bulgarian 2026 rates ──── */
 const MAX_OSV = 3750;
@@ -437,10 +440,13 @@ export default function Calculators() {
         </div>
         <div className="mx-auto max-w-2xl">
           <Tabs defaultValue="salary">
-            <TabsList className="mb-6 flex w-full">
+            <TabsList className="mb-6 flex w-full flex-wrap">
               <TabsTrigger value="salary" className="flex-1 gap-1"><Banknote className="h-4 w-4" /> Заплата</TabsTrigger>
               <TabsTrigger value="vat" className="flex-1 gap-1"><Receipt className="h-4 w-4" /> ДДС</TabsTrigger>
               <TabsTrigger value="civil" className="flex-1 gap-1"><FileText className="h-4 w-4" /> Граждански</TabsTrigger>
+              <TabsTrigger value="health" className="flex-1 gap-1"><HeartPulse className="h-4 w-4" /> Здравно</TabsTrigger>
+              <TabsTrigger value="interest" className="flex-1 gap-1"><Percent className="h-4 w-4" /> Лихви</TabsTrigger>
+              <TabsTrigger value="tax" className="flex-1 gap-1"><Calculator className="h-4 w-4" /> Данък</TabsTrigger>
             </TabsList>
             <Card>
               <CardContent className="p-6">
@@ -464,6 +470,27 @@ export default function Calculators() {
                     <p className="text-sm text-muted-foreground">Осигуровки и данък за изпълнител по граждански договор</p>
                   </div>
                   <CivilContractCalculator />
+                </TabsContent>
+                <TabsContent value="health" className="mt-0">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold">Здравноосигурителен калкулатор</h3>
+                    <p className="text-sm text-muted-foreground">Вноски за самоосигуряващи се лица — ДОО, УПФ, здравно (НАП)</p>
+                  </div>
+                  <HealthInsuranceCalculator />
+                </TabsContent>
+                <TabsContent value="interest" className="mt-0">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold">Лихвен калкулатор — НАП</h3>
+                    <p className="text-sm text-muted-foreground">Законна лихва за просрочени задължения (ОЛП + 10 п.п.)</p>
+                  </div>
+                  <InterestCalculator />
+                </TabsContent>
+                <TabsContent value="tax" className="mt-0">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold">Данъчен калкулатор</h3>
+                    <p className="text-sm text-muted-foreground">Данък общ доход за физически лица с облекчения за деца и ТЕЛК</p>
+                  </div>
+                  <IncomeTaxCalculator />
                 </TabsContent>
               </CardContent>
             </Card>
