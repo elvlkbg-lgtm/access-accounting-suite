@@ -20,7 +20,7 @@ import Consultations from "./pages/Consultations";
 import AccountingCalendar from "./pages/AccountingCalendar";
 import ContactAccountant from "./pages/ContactAccountant";
 import SearchAccountants from "./pages/SearchAccountants";
-
+import Services from "./pages/Services";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +36,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/search" element={<SearchAccountants />} />
-            <Route path="/services" element={<Navigate to="/" replace />} />
+            <Route path="/services" element={<Services />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/calculators" element={<Calculators />} />
             <Route path="/calendar" element={<AccountingCalendar />} />
