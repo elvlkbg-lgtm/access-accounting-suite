@@ -298,6 +298,9 @@ export default function SearchAccountants() {
                           ))}
                         </div>
                         {d.qualification && <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{d.qualification}</p>}
+                        <div className="mt-2">
+                          <InlineStarRating value={d.rating || 0} onRate={(v) => rateAccountant(nameToAccProfileId[d.full_name] || d.id, v)} />
+                        </div>
                         <div className="mt-4 flex gap-2">
                           <Button className="flex-1" size="sm" onClick={() => navigate(`/contact-accountant/${d.id}`)}>
                             Свържи се
@@ -356,6 +359,9 @@ export default function SearchAccountants() {
                         {d.ides_number && <p className="text-xs text-muted-foreground">ИДЕС №{d.ides_number}</p>}
                         {d.email && <p className="text-xs text-muted-foreground">✉ {d.email}</p>}
                         {d.phone && <p className="text-xs text-muted-foreground">📞 {d.phone}</p>}
+                        <div className="mt-2">
+                          <InlineStarRating value={d.rating || 0} onRate={(v) => rateAccountant(d.id, v)} />
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
