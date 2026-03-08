@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, MessageCircle, ClipboardList, Search, Send, Upload } from 'lucide-react';
+import { FileText, MessageCircle, ClipboardList, Search, Send, Upload, Heart, MapPin, Phone, Mail, Star, Trash2 } from 'lucide-react';
 import OnlineStatusSelector from '@/components/OnlineStatusSelector';
 import Navbar from '@/components/Navbar';
 import MessagingPanel from '@/components/MessagingPanel';
@@ -24,13 +24,14 @@ export default function ClientDashboard() {
   const [newMessage, setNewMessage] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) fetchData();
   }, [user]);
 
   const fetchData = async () => {
-    await Promise.all([fetchRequests(), fetchUnread(), fetchDocCount(), fetchOnlineStatus()]);
+    await Promise.all([fetchRequests(), fetchUnread(), fetchDocCount(), fetchOnlineStatus(), fetchFavorites()]);
     setLoading(false);
   };
 
@@ -63,6 +64,46 @@ export default function ClientDashboard() {
       .select('*', { count: 'exact', head: true })
       .eq('uploaded_by', user!.id);
     setDocCount(count || 0);
+  };
+
+  const fetchFavorites = async () => {
+    const { data } = await supabase
+      .from('favorite_accountants')
+      .select('id, accountant_id, created_at')
+      .eq('user_id', user!.id);
+    
+    if (!data || data.length === 0) { setFavorites([]); return; }
+    
+    const accIds = data.map(f => f.accountant_id);
+    const { data: profiles } = await supabase
+      .from('accountant_profiles')
+      .select('id, display_name, location, specialization, rating, user_id')
+      .in('id', accIds);
+    
+    // Fetch phone/email from profiles table
+    const userIds = (profiles || []).map(p => p.user_id);
+    const { data: userProfiles } = await supabase
+      .from('profiles')
+      .select('id, phone, email, avatar_url')
+      .in('id', userIds);
+    
+    const userMap = new Map((userProfiles || []).map(u => [u.id, u]));
+    
+    const merged = (profiles || []).map(p => ({
+      ...p,
+      phone: userMap.get(p.user_id)?.phone || null,
+      email: userMap.get(p.user_id)?.email || null,
+      avatar_url: userMap.get(p.user_id)?.avatar_url || null,
+      favorite_id: data.find(f => f.accountant_id === p.id)?.id,
+    }));
+    
+    setFavorites(merged);
+  };
+
+  const removeFavorite = async (favoriteId: string) => {
+    await supabase.from('favorite_accountants').delete().eq('id', favoriteId);
+    toast.success('Премахнат от предпочитани');
+    fetchFavorites();
   };
 
   const sendMessage = async (receiverId: string, requestId: string) => {
@@ -114,8 +155,9 @@ export default function ClientDashboard() {
         </div>
 
         <Tabs defaultValue="requests">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="requests">Заявки</TabsTrigger>
+            <TabsTrigger value="favorites" className="gap-1"><Heart className="h-4 w-4" /> Предпочитани ({favorites.length})</TabsTrigger>
             <TabsTrigger value="messages">Съобщения</TabsTrigger>
             <TabsTrigger value="documents">Документи</TabsTrigger>
           </TabsList>
@@ -156,6 +198,74 @@ export default function ClientDashboard() {
               </Card>
             ))}
             {requests.length === 0 && <p className="text-center text-muted-foreground py-8">Нямате заявки все още.</p>}
+          </TabsContent>
+
+          <TabsContent value="favorites" className="mt-4">
+            {favorites.length === 0 ? (
+              <div className="py-10 text-center">
+                <Heart className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+                <p className="text-muted-foreground">Нямате предпочитани счетоводители.</p>
+                <Button className="mt-4" size="sm" onClick={() => navigate('/')}>
+                  <Search className="mr-2 h-4 w-4" /> Намерете счетоводител
+                </Button>
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {favorites.map((fav) => (
+                  <Card key={fav.id} className="transition-all hover:shadow-lg hover:border-primary/30">
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          {fav.avatar_url ? (
+                            <img src={fav.avatar_url} alt="" className="h-12 w-12 rounded-full object-cover border" />
+                          ) : (
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
+                              {(fav.display_name || '?')[0]}
+                            </div>
+                          )}
+                          <div>
+                            <h3 className="font-semibold">{fav.display_name || 'Счетоводител'}</h3>
+                            {fav.location && (
+                              <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <MapPin className="h-3 w-3" /> {fav.location}
+                              </p>
+                            )}
+                            {fav.rating > 0 && (
+                              <p className="flex items-center gap-1 text-xs text-amber-500">
+                                <Star className="h-3 w-3 fill-current" /> {Number(fav.rating).toFixed(1)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <Button size="icon" variant="ghost" className="text-red-500 hover:text-red-600" onClick={() => removeFavorite(fav.favorite_id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-1">
+                        {fav.specialization?.map((s: string) => (
+                          <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
+                        ))}
+                      </div>
+                      <div className="mt-3 space-y-1">
+                        {fav.phone && (
+                          <a href={`tel:${fav.phone}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                            <Phone className="h-3.5 w-3.5" /> {fav.phone}
+                          </a>
+                        )}
+                        {fav.email && (
+                          <a href={`mailto:${fav.email}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                            <Mail className="h-3.5 w-3.5" /> {fav.email}
+                          </a>
+                        )}
+                      </div>
+                      <div className="mt-4 flex gap-2">
+                        <Button size="sm" className="flex-1" onClick={() => navigate('/consultations')}>Консултация</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="messages" className="mt-4">

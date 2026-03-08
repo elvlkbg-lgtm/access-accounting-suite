@@ -256,6 +256,35 @@ export type Database = {
           },
         ]
       }
+      favorite_accountants: {
+        Row: {
+          accountant_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          accountant_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          accountant_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_accountants_accountant_id_fkey"
+            columns: ["accountant_id"]
+            isOneToOne: false
+            referencedRelation: "accountant_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       folders: {
         Row: {
           created_at: string
