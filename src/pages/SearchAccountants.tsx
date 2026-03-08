@@ -62,17 +62,44 @@ export default function SearchAccountants() {
 
   const fetchAll = async () => {
     setLoading(true);
-    const [{ data: dirData }, { data: accData }] = await Promise.all([
+    const [{ data: dirData }, { data: accData }, { data: reviewData }] = await Promise.all([
       supabase.from('auditor_directory').select('id, full_name, city, specialization, qualification, ides_number, source, email'),
-      supabase.from('accountant_profiles').select('id, display_name, user_id').eq('is_approved', true),
+      supabase.from('accountant_profiles').select('id, display_name, user_id, rating').eq('is_approved', true),
+      supabase.from('accountant_reviews').select('accountant_id, rating'),
     ]);
-    const entries = (dirData as any[]) || [];
-    setDirectory(entries);
-    // Map auditor_directory full_name -> accountant_profiles id for platform entries
+
+    // Build average rating per accountant_profile id from reviews
+    const ratingMap: Record<string, number> = {};
+    if (reviewData && reviewData.length > 0) {
+      const sums: Record<string, { total: number; count: number }> = {};
+      reviewData.forEach((r: any) => {
+        if (!sums[r.accountant_id]) sums[r.accountant_id] = { total: 0, count: 0 };
+        sums[r.accountant_id].total += r.rating;
+        sums[r.accountant_id].count += 1;
+      });
+      Object.entries(sums).forEach(([id, { total, count }]) => {
+        ratingMap[id] = total / count;
+      });
+    }
+
+    // Map display_name -> accountant_profiles id & rating
     const mapping: Record<string, string> = {};
+    const nameToRating: Record<string, number> = {};
     (accData || []).forEach((ap: any) => {
-      if (ap.display_name) mapping[ap.display_name] = ap.id;
+      if (ap.display_name) {
+        mapping[ap.display_name] = ap.id;
+        // Use review average if available, otherwise profile rating
+        nameToRating[ap.display_name] = ratingMap[ap.id] ?? (ap.rating || 0);
+      }
     });
+
+    // Attach rating to directory entries
+    const entries = ((dirData as any[]) || []).map((d: any) => ({
+      ...d,
+      rating: nameToRating[d.full_name] ?? 0,
+    }));
+
+    setDirectory(entries);
     setNameToAccProfileId(mapping);
     const uniqueCities = [...new Set(entries.map((d: any) => d.city).filter(Boolean))] as string[];
     uniqueCities.sort((a, b) => a.localeCompare(b, 'bg'));
