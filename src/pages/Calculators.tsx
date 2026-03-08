@@ -457,19 +457,19 @@ export default function Calculators() {
                   </div>
                   <SalaryCalculator />
                 </TabsContent>
-                <TabsContent value="vat" className="mt-0">
-                  <div className="mb-4">
-                    <h3 className="text-lg font-semibold">ДДС Калкулатор</h3>
-                    <p className="text-sm text-muted-foreground">Начислете или извлечете ДДС от сума (20%, 9%, 0%)</p>
-                  </div>
-                  <VATCalculator />
-                </TabsContent>
                 <TabsContent value="civil" className="mt-0">
                   <div className="mb-4">
                     <h3 className="text-lg font-semibold">Калкулатор — Граждански договор</h3>
                     <p className="text-sm text-muted-foreground">Осигуровки и данък за изпълнител по граждански договор</p>
                   </div>
                   <CivilContractCalculator />
+                </TabsContent>
+                <TabsContent value="vat" className="mt-0">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold">ДДС Калкулатор</h3>
+                    <p className="text-sm text-muted-foreground">Начислете или извлечете ДДС от сума (20%, 9%, 0%)</p>
+                  </div>
+                  <VATCalculator />
                 </TabsContent>
                 <TabsContent value="health" className="mt-0">
                   <div className="mb-4">

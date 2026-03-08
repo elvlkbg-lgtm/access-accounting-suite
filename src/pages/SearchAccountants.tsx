@@ -24,6 +24,7 @@ interface DirectoryEntry {
   ides_number: string | null;
   source: string;
   email: string | null;
+  phone: string | null;
   rating?: number | null;
 }
 
@@ -63,7 +64,7 @@ export default function SearchAccountants() {
   const fetchAll = async () => {
     setLoading(true);
     const [{ data: dirData }, { data: accData }, { data: reviewData }] = await Promise.all([
-      supabase.from('auditor_directory').select('id, full_name, city, specialization, qualification, ides_number, source, email'),
+      supabase.from('auditor_directory').select('id, full_name, city, specialization, qualification, ides_number, source, email, phone'),
       supabase.from('accountant_profiles').select('id, display_name, user_id, rating').eq('is_approved', true),
       supabase.from('accountant_reviews').select('accountant_id, rating'),
     ]);
