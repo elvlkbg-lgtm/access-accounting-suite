@@ -200,6 +200,74 @@ export default function ClientDashboard() {
             {requests.length === 0 && <p className="text-center text-muted-foreground py-8">Нямате заявки все още.</p>}
           </TabsContent>
 
+          <TabsContent value="favorites" className="mt-4">
+            {favorites.length === 0 ? (
+              <div className="py-10 text-center">
+                <Heart className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+                <p className="text-muted-foreground">Нямате предпочитани счетоводители.</p>
+                <Button className="mt-4" size="sm" onClick={() => navigate('/')}>
+                  <Search className="mr-2 h-4 w-4" /> Намерете счетоводител
+                </Button>
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {favorites.map((fav) => (
+                  <Card key={fav.id} className="transition-all hover:shadow-lg hover:border-primary/30">
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          {fav.avatar_url ? (
+                            <img src={fav.avatar_url} alt="" className="h-12 w-12 rounded-full object-cover border" />
+                          ) : (
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
+                              {(fav.display_name || '?')[0]}
+                            </div>
+                          )}
+                          <div>
+                            <h3 className="font-semibold">{fav.display_name || 'Счетоводител'}</h3>
+                            {fav.location && (
+                              <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <MapPin className="h-3 w-3" /> {fav.location}
+                              </p>
+                            )}
+                            {fav.rating > 0 && (
+                              <p className="flex items-center gap-1 text-xs text-amber-500">
+                                <Star className="h-3 w-3 fill-current" /> {Number(fav.rating).toFixed(1)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <Button size="icon" variant="ghost" className="text-red-500 hover:text-red-600" onClick={() => removeFavorite(fav.favorite_id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-1">
+                        {fav.specialization?.map((s: string) => (
+                          <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
+                        ))}
+                      </div>
+                      <div className="mt-3 space-y-1">
+                        {fav.phone && (
+                          <a href={`tel:${fav.phone}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                            <Phone className="h-3.5 w-3.5" /> {fav.phone}
+                          </a>
+                        )}
+                        {fav.email && (
+                          <a href={`mailto:${fav.email}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                            <Mail className="h-3.5 w-3.5" /> {fav.email}
+                          </a>
+                        )}
+                      </div>
+                      <div className="mt-4 flex gap-2">
+                        <Button size="sm" className="flex-1" onClick={() => navigate('/consultations')}>Консултация</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
           <TabsContent value="messages" className="mt-4">
             <MessagingPanel />
           </TabsContent>
