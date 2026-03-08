@@ -4,12 +4,26 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Calendar, Clock, ArrowRight, BookOpen, Newspaper, Lightbulb, Scale, ExternalLink, FileText } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Search, Calendar, Clock, ArrowRight, BookOpen, Newspaper, Lightbulb, Scale, ExternalLink, FileText, HelpCircle, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 type Category = 'all' | 'news' | 'tips' | 'guides';
+
+const FAQ_ITEMS = [
+  { q: 'Кога трябва да се регистрирам по ДДС?', a: 'Задължителна регистрация по ЗДДС е необходима при достигане на облагаем оборот от 100 000 лв. за последните 12 последователни месеца. Доброволна регистрация може да се направи по всяко време.' },
+  { q: 'Какви документи са нужни за счетоводно обслужване?', a: 'Основните документи включват: фактури (покупки и продажби), банкови извлечения, касови бележки, договори, ведомости за заплати и осигурителни декларации. Счетоводителят ви ще ви предостави пълен списък.' },
+  { q: 'Какъв е срокът за подаване на годишна данъчна декларация?', a: 'За юридически лица (ЗКПО) — до 30 юни на следващата година. За физически лица (ЗДДФЛ) — до 30 април. При подаване по електронен път за физически лица срокът е до 30 април с 5% отстъпка.' },
+  { q: 'Колко струва счетоводно обслужване?', a: 'Цената зависи от вида дейност, броя документи и служители. Ориентировъчно: от 100 лв./месец за малки фирми до 50 документа, до 300+ лв./месец за по-големи компании с пълно обслужване и ТРЗ.' },
+  { q: 'Какви са осигуровките за самоосигуряващи се лица?', a: 'Минималният осигурителен доход за 2026 г. е 933 лв. Общият размер на осигуровките е около 31.3% за всички осигурителни рискове. Минималната месечна вноска е приблизително 292 лв.' },
+  { q: 'Трябва ли да имам касов апарат?', a: 'Да, ако извършвате продажби на стоки или услуги на физически лица и плащането е в брой или с карта. Има изключения за някои свободни професии и електронна търговия при определени условия.' },
+  { q: 'Какво представлява инвентаризацията и кога се прави?', a: 'Инвентаризацията е проверка на наличните активи и пасиви. Задължително се извършва поне веднъж годишно преди годишното счетоводно приключване.' },
+  { q: 'Мога ли да сменя счетоводителя си по средата на годината?', a: 'Да, можете да смените счетоводителя си по всяко време. Важно е да получите всички счетоводни документи и бази данни от предишния счетоводител и да уведомите НАП за новия упълномощен представител.' },
+  { q: 'Какви глоби грозят при неподадена данъчна декларация?', a: 'За физически лица — от 500 до 3000 лв. за всеки отделен случай. За юридически лица — от 500 до 5000 лв. При повторно нарушение глобите се удвояват.' },
+  { q: 'Какви са предимствата на електронното счетоводство?', a: 'Електронното счетоводство осигурява бърз достъп до документи, автоматизация на процесите, по-малко грешки, спестено време и възможност за работа от разстояние. Също така улеснява комуникацията с НАП.' },
+];
 
 interface Article {
   id: string;
@@ -67,7 +81,7 @@ const NRA_NEWS = [
 export default function Blog() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<Category>('all');
-  const [activeTab, setActiveTab] = useState<'articles' | 'laws'>('articles');
+  const [activeTab, setActiveTab] = useState<'articles' | 'laws' | 'faq'>('articles');
   const [lawFilter, setLawFilter] = useState<'all' | 'law' | 'standard' | 'international'>('all');
   const [articles, setArticles] = useState<Article[]>(STATIC_ARTICLES);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
@@ -116,7 +130,8 @@ export default function Blog() {
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="mb-8">
           <TabsList className="mx-auto flex w-fit">
             <TabsTrigger value="articles" className="gap-1"><Newspaper className="h-4 w-4" /> Статии</TabsTrigger>
-            <TabsTrigger value="laws" className="gap-1"><Scale className="h-4 w-4" /> Закони и нормативи</TabsTrigger>
+            <TabsTrigger value="laws" className="gap-1"><Scale className="h-4 w-4" /> Закони</TabsTrigger>
+            <TabsTrigger value="faq" className="gap-1"><HelpCircle className="h-4 w-4" /> ЧЗВ</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -253,6 +268,28 @@ export default function Blog() {
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'faq' && (
+          <div className="mx-auto max-w-3xl">
+            <div className="mb-6 text-center">
+              <HelpCircle className="mx-auto h-10 w-10 text-primary mb-3" />
+              <h2 className="text-2xl font-bold">Често задавани въпроси</h2>
+              <p className="mt-1 text-muted-foreground">Отговори на най-честите въпроси за счетоводните услуги</p>
+            </div>
+            <Accordion type="single" collapsible className="space-y-2">
+              {FAQ_ITEMS.map((item, i) => (
+                <AccordionItem key={i} value={`faq-${i}`} className="rounded-lg border bg-card px-4">
+                  <AccordionTrigger className="text-left font-medium hover:no-underline">
+                    {item.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground leading-relaxed">
+                    {item.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         )}
       </main>
