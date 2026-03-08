@@ -31,9 +31,9 @@ export default function Footer() {
             <h4 className="mb-3 font-semibold">Услуги</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/?service=Пълно" className="hover:text-foreground transition-colors">Пълно счетоводство</Link></li>
-              <li><Link to="/?service=Данъци" className="hover:text-foreground transition-colors">Счетоводни услуги Данъци</Link></li>
-              <li><Link to="/?service=ТРЗ" className="hover:text-foreground transition-colors">Счетоводни услуги ТРЗ и Човешки ресурси</Link></li>
-              <li><Link to="/?service=Одит" className="hover:text-foreground transition-colors">Счетоводни услуги Одит</Link></li>
+              <li><Link to="/?service=Данъци" className="hover:text-foreground transition-colors">Данъци</Link></li>
+              <li><Link to="/?service=ТРЗ" className="hover:text-foreground transition-colors">ТРЗ и Човешки ресурси</Link></li>
+              <li><Link to="/?service=Одит" className="hover:text-foreground transition-colors">Одит</Link></li>
             </ul>
           </div>
           <div>
@@ -44,11 +44,11 @@ export default function Footer() {
               <li>ул. „Цар Освободител" 15, София</li>
             </ul>
             <div className="mt-4 flex gap-3">
-              <a href="https://www.instagram.com/accountix1/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                <Instagram className="h-5 w-5" />
+              <a href="https://www.instagram.com/accountpro.1/?hl=bg" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
+                <Instagram className="h-5 w-5" style={{ color: '#E1306C' }} />
               </a>
-              <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                <Facebook className="h-5 w-5" />
+              <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
+                <Facebook className="h-5 w-5" style={{ color: '#1877F2' }} />
               </a>
             </div>
             <div className="mt-4 overflow-hidden rounded-lg border">

@@ -1,7 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { Calculator, Menu, X, Instagram, Facebook } from 'lucide-react';
+import { Calculator, Menu, X } from 'lucide-react';
+import { Instagram, Facebook } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Navbar() {
@@ -23,14 +24,12 @@ export default function Navbar() {
 
   const navLinks = user ? [
     { to: '/dashboard', label: 'Търси счетоводител' },
-    { to: '/services', label: 'Услуги и цени' },
     { to: '/calendar', label: 'Календар' },
     { to: '/consultations', label: 'Консултации' },
     { to: '/calculators', label: 'Калкулатори' },
     { to: '/blog', label: 'Блог' },
   ] : [
     { to: '/', label: 'Търси счетоводител' },
-    { to: '/services', label: 'Услуги и цени' },
     { to: '/calendar', label: 'Календар' },
     { to: '/consultations', label: 'Консултации' },
     { to: '/calculators', label: 'Калкулатори' },
@@ -58,11 +57,11 @@ export default function Navbar() {
                 Табло
               </Link>
               <div className="flex items-center gap-2">
-                <a href="https://www.instagram.com/accountix1/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Instagram className="h-5 w-5" />
+              <a href="https://www.instagram.com/accountpro.1/?hl=bg" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
+                  <Instagram className="h-5 w-5" style={{ color: '#E1306C' }} />
                 </a>
-                <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Facebook className="h-5 w-5" />
+                <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
+                  <Facebook className="h-5 w-5" style={{ color: '#1877F2' }} />
                 </a>
               </div>
               <Button variant="outline" size="sm" onClick={handleSignOut}>Изход</Button>
@@ -70,11 +69,11 @@ export default function Navbar() {
           ) : (
             <>
               <div className="flex items-center gap-2">
-                <a href="https://www.instagram.com/accountix1/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Instagram className="h-5 w-5" />
+              <a href="https://www.instagram.com/accountpro.1/?hl=bg" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
+                  <Instagram className="h-5 w-5" style={{ color: '#E1306C' }} />
                 </a>
-                <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Facebook className="h-5 w-5" />
+                <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
+                  <Facebook className="h-5 w-5" style={{ color: '#1877F2' }} />
                 </a>
               </div>
               <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Вход</Button>
