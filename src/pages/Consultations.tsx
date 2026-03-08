@@ -33,6 +33,7 @@ export default function Consultations() {
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [myConsultations, setMyConsultations] = useState<any[]>([]);
+  const [clientNames, setClientNames] = useState<Record<string, string>>({});
   const [booked, setBooked] = useState(false);
 
   const isAccountant = hasRole('accountant');
@@ -53,6 +54,8 @@ export default function Consultations() {
   };
 
   const fetchMyConsultations = async () => {
+    let consultations: any[] = [];
+    
     if (isAccountant) {
       const { data: profile } = await supabase
         .from('accountant_profiles')
@@ -65,7 +68,7 @@ export default function Consultations() {
           .select('*')
           .eq('accountant_id', profile.id)
           .order('scheduled_at', { ascending: false });
-        setMyConsultations(data || []);
+        consultations = data || [];
       }
     } else {
       const { data } = await supabase
@@ -73,7 +76,25 @@ export default function Consultations() {
         .select('*')
         .eq('client_id', user!.id)
         .order('scheduled_at', { ascending: false });
-      setMyConsultations(data || []);
+      consultations = data || [];
+    }
+
+    setMyConsultations(consultations);
+
+    // Fetch client names for accountant view
+    if (isAccountant && consultations.length > 0) {
+      const clientIds = [...new Set(consultations.map(c => c.client_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', clientIds);
+      if (profiles) {
+        const names: Record<string, string> = {};
+        profiles.forEach(p => {
+          names[p.id] = p.full_name || p.email || 'Клиент';
+        });
+        setClientNames(names);
+      }
     }
   };
 
@@ -280,7 +301,7 @@ export default function Consultations() {
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-2 text-sm font-medium">
                             <User className="h-4 w-4 text-muted-foreground" />
-                            {isAccountant ? 'Клиент' : getAccountantName(c.accountant_id)}
+                            {isAccountant ? (clientNames[c.client_id] || 'Клиент') : getAccountantName(c.accountant_id)}
                           </span>
                           <Badge variant={status.variant}>{status.label}</Badge>
                         </div>
