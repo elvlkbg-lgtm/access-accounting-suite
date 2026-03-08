@@ -160,6 +160,25 @@ export default function SearchAccountants() {
     }
   };
 
+  const rateAccountant = async (accountantId: string, rating: number) => {
+    const insertData: any = { accountant_id: accountantId, rating };
+    if (user) insertData.reviewer_id = user.id;
+    const { error } = await supabase.from('accountant_reviews').insert(insertData);
+    if (error) {
+      toast.error('Грешка при оценяване');
+    } else {
+      toast.success('Благодарим за оценката!');
+      // Update local rating
+      setDirectory(prev => prev.map(d => {
+        if (d.id === accountantId || nameToAccProfileId[d.full_name] === accountantId) {
+          const oldRating = d.rating || 0;
+          return { ...d, rating: oldRating > 0 ? (oldRating + rating) / 2 : rating };
+        }
+        return d;
+      }));
+    }
+  };
+
   const filteredIdes = directory.filter((d) => {
     if (d.source !== 'ides') return false;
     const q = query.toLowerCase();
