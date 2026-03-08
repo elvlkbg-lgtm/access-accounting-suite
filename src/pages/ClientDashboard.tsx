@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, MessageCircle, ClipboardList, Search, Send, Upload } from 'lucide-react';
+import { FileText, MessageCircle, ClipboardList, Search, Send, Upload, Heart, MapPin, Phone, Mail, Star, Trash2 } from 'lucide-react';
 import OnlineStatusSelector from '@/components/OnlineStatusSelector';
 import Navbar from '@/components/Navbar';
 import MessagingPanel from '@/components/MessagingPanel';
@@ -24,13 +24,14 @@ export default function ClientDashboard() {
   const [newMessage, setNewMessage] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) fetchData();
   }, [user]);
 
   const fetchData = async () => {
-    await Promise.all([fetchRequests(), fetchUnread(), fetchDocCount(), fetchOnlineStatus()]);
+    await Promise.all([fetchRequests(), fetchUnread(), fetchDocCount(), fetchOnlineStatus(), fetchFavorites()]);
     setLoading(false);
   };
 
@@ -63,6 +64,46 @@ export default function ClientDashboard() {
       .select('*', { count: 'exact', head: true })
       .eq('uploaded_by', user!.id);
     setDocCount(count || 0);
+  };
+
+  const fetchFavorites = async () => {
+    const { data } = await supabase
+      .from('favorite_accountants')
+      .select('id, accountant_id, created_at')
+      .eq('user_id', user!.id);
+    
+    if (!data || data.length === 0) { setFavorites([]); return; }
+    
+    const accIds = data.map(f => f.accountant_id);
+    const { data: profiles } = await supabase
+      .from('accountant_profiles')
+      .select('id, display_name, location, specialization, rating, user_id')
+      .in('id', accIds);
+    
+    // Fetch phone/email from profiles table
+    const userIds = (profiles || []).map(p => p.user_id);
+    const { data: userProfiles } = await supabase
+      .from('profiles')
+      .select('id, phone, email, avatar_url')
+      .in('id', userIds);
+    
+    const userMap = new Map((userProfiles || []).map(u => [u.id, u]));
+    
+    const merged = (profiles || []).map(p => ({
+      ...p,
+      phone: userMap.get(p.user_id)?.phone || null,
+      email: userMap.get(p.user_id)?.email || null,
+      avatar_url: userMap.get(p.user_id)?.avatar_url || null,
+      favorite_id: data.find(f => f.accountant_id === p.id)?.id,
+    }));
+    
+    setFavorites(merged);
+  };
+
+  const removeFavorite = async (favoriteId: string) => {
+    await supabase.from('favorite_accountants').delete().eq('id', favoriteId);
+    toast.success('Премахнат от предпочитани');
+    fetchFavorites();
   };
 
   const sendMessage = async (receiverId: string, requestId: string) => {
@@ -114,8 +155,9 @@ export default function ClientDashboard() {
         </div>
 
         <Tabs defaultValue="requests">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="requests">Заявки</TabsTrigger>
+            <TabsTrigger value="favorites" className="gap-1"><Heart className="h-4 w-4" /> Предпочитани ({favorites.length})</TabsTrigger>
             <TabsTrigger value="messages">Съобщения</TabsTrigger>
             <TabsTrigger value="documents">Документи</TabsTrigger>
           </TabsList>
