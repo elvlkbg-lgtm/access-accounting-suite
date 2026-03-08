@@ -230,7 +230,6 @@ export default function SearchAccountants() {
                               <Heart className={`h-4 w-4 ${favoriteIds.has(nameToAccProfileId[d.full_name]) ? 'fill-current' : ''}`} />
                             </Button>
                           )}
-                          </Button>
                         </div>
                       </CardContent>
                     </Card>
