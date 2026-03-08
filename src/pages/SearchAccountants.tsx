@@ -106,7 +106,7 @@ export default function SearchAccountants() {
       supabase.from('accountant_reviews').select('accountant_id, rating'),
     ]);
 
-    // Build average rating per accountant_profile id from reviews
+    // Build average rating per accountant_id (could be accountant_profile id or directory id)
     const ratingMap: Record<string, number> = {};
     if (reviewData && reviewData.length > 0) {
       const sums: Record<string, { total: number; count: number }> = {};
@@ -122,19 +122,16 @@ export default function SearchAccountants() {
 
     // Map display_name -> accountant_profiles id & rating
     const mapping: Record<string, string> = {};
-    const nameToRating: Record<string, number> = {};
     (accData || []).forEach((ap: any) => {
       if (ap.display_name) {
         mapping[ap.display_name] = ap.id;
-        // Use review average if available, otherwise profile rating
-        nameToRating[ap.display_name] = ratingMap[ap.id] ?? (ap.rating || 0);
       }
     });
 
-    // Attach rating to directory entries
+    // Attach rating to directory entries (check by accountant_profile id or directory entry id)
     const entries = ((dirData as any[]) || []).map((d: any) => ({
       ...d,
-      rating: nameToRating[d.full_name] ?? 0,
+      rating: ratingMap[mapping[d.full_name]] ?? ratingMap[d.id] ?? 0,
     }));
 
     setDirectory(entries);
