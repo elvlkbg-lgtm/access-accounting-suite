@@ -57,25 +57,34 @@ export default function AccountantReviews({ accountantId }: { accountantId: stri
 
   const fetchReviews = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('accountant_reviews' as any)
+    const { data, error } = await supabase
+      .from('accountant_reviews')
       .select('*')
       .eq('accountant_id', accountantId)
       .order('created_at', { ascending: false });
 
-    if (data) {
-      // Fetch reviewer names
-      const reviewerIds = [...new Set((data as any[]).map((r: any) => r.reviewer_id))];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .in('id', reviewerIds);
+    if (data && data.length > 0) {
+      // Try to fetch reviewer names, but don't fail if RLS blocks some
+      const reviewerIds = [...new Set(data.map((r) => r.reviewer_id))];
+      let profileMap = new Map<string, string | null>();
+      try {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', reviewerIds);
+        if (profiles) {
+          profileMap = new Map(profiles.map(p => [p.id, p.full_name]));
+        }
+      } catch (_) {
+        // RLS may block some profiles - that's OK
+      }
 
-      const profileMap = new Map((profiles || []).map(p => [p.id, p.full_name]));
-      setReviews((data as any[]).map((r: any) => ({
+      setReviews(data.map((r) => ({
         ...r,
-        reviewer_name: profileMap.get(r.reviewer_id) || 'Анонимен',
+        reviewer_name: profileMap.get(r.reviewer_id) || 'Потребител',
       })));
+    } else {
+      setReviews([]);
     }
     setLoading(false);
   };
@@ -86,8 +95,8 @@ export default function AccountantReviews({ accountantId }: { accountantId: stri
 
     setSubmitting(true);
     const { error } = await supabase
-      .from('accountant_reviews' as any)
-      .insert({ accountant_id: accountantId, reviewer_id: user.id, rating, comment: comment || null } as any);
+      .from('accountant_reviews')
+      .insert({ accountant_id: accountantId, reviewer_id: user.id, rating, comment: comment || null });
 
     if (error) {
       toast.error('Грешка при изпращане на отзив');
