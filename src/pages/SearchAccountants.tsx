@@ -224,6 +224,13 @@ export default function SearchAccountants() {
                           <Button size="sm" variant="outline" onClick={() => navigate('/consultations')}>
                             Консултация
                           </Button>
+                          {nameToAccProfileId[d.full_name] && (
+                            <Button size="sm" variant="ghost" onClick={() => toggleFavorite(nameToAccProfileId[d.full_name])}
+                              className={favoriteIds.has(nameToAccProfileId[d.full_name]) ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-red-500'}>
+                              <Heart className={`h-4 w-4 ${favoriteIds.has(nameToAccProfileId[d.full_name]) ? 'fill-current' : ''}`} />
+                            </Button>
+                          )}
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
