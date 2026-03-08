@@ -33,10 +33,18 @@ export default function AccountantProfilePage() {
   const fetchProfile = async () => {
     const { data } = await supabase
       .from('accountant_profiles')
-      .select('*, profiles(full_name, avatar_url, email)')
+      .select('*')
       .eq('id', id)
       .single();
-    setProfile(data);
+    if (data) {
+      // Fetch profile info separately (no FK join available)
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('full_name, avatar_url, email')
+        .eq('id', data.user_id)
+        .single();
+      setProfile({ ...data, profiles: profileData });
+    }
     setLoading(false);
   };
 
