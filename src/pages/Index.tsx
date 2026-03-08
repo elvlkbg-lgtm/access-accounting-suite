@@ -61,8 +61,6 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [selectedAccountant, setSelectedAccountant] = useState<DirectoryEntry | null>(null);
   const [reviewCounts, setReviewCounts] = useState<Record<string, { avg: number; count: number }>>({});
-  const [selectedAccountant, setSelectedAccountant] = useState<DirectoryEntry | null>(null);
-  const [reviewCounts, setReviewCounts] = useState<Record<string, { avg: number; count: number }>>({});
 
   useEffect(() => {
     fetchAll();
