@@ -251,14 +251,19 @@ export default function SearchAccountants() {
                           <Button size="sm" variant="outline" onClick={() => navigate('/consultations')}>
                             Консултация
                           </Button>
-                          {nameToAccProfileId[d.full_name] && (
-                            <Button size="sm" variant={favoriteIds.has(nameToAccProfileId[d.full_name]) ? 'destructive' : 'outline'}
-                              onClick={() => toggleFavorite(nameToAccProfileId[d.full_name])}
-                              className="gap-1">
-                              <Heart className={`h-4 w-4 ${favoriteIds.has(nameToAccProfileId[d.full_name]) ? 'fill-current' : ''}`} />
-                              {favoriteIds.has(nameToAccProfileId[d.full_name]) ? '' : ''}
-                            </Button>
-                          )}
+                          <Button size="sm"
+                            variant={nameToAccProfileId[d.full_name] && favoriteIds.has(nameToAccProfileId[d.full_name]) ? 'destructive' : 'outline'}
+                            onClick={() => {
+                              const profileId = nameToAccProfileId[d.full_name];
+                              if (profileId) {
+                                toggleFavorite(profileId);
+                              } else {
+                                toast.info('Този счетоводител все още няма активен профил за предпочитани.');
+                              }
+                            }}
+                            className="gap-1">
+                            <Heart className={`h-4 w-4 ${nameToAccProfileId[d.full_name] && favoriteIds.has(nameToAccProfileId[d.full_name]) ? 'fill-current' : ''}`} />
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
