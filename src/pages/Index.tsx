@@ -15,42 +15,6 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AccountantReviews from '@/components/AccountantReviews';
 
-/* ── Services data ── */
-const SERVICE_CARDS = [
-  {
-    icon: Star,
-    title: 'Пълно счетоводство',
-    price: '180–220 €',
-    description: 'Цялостно счетоводно обслужване',
-    details: 'Текущо осчетоводяване на документи, годишно счетоводно приключване, изготвяне на финансови отчети и справки за управлението. Работим с всички видове предприятия — от еднолични търговци до големи компании.',
-    searchQuery: 'Пълно счетоводство',
-  },
-  {
-    icon: FileText,
-    title: 'Счетоводни услуги Данъци',
-    price: '80–100 €',
-    description: 'Данъчни декларации и планиране',
-    details: 'Професионално данъчно планиране и оптимизация. Подготовка и подаване на данъчни декларации по ДДС, ЗДДФЛ и ЗКПО. Представителство пред НАП при проверки и ревизии. Минимизиране на данъчната тежест при спазване на закона.',
-    searchQuery: 'Данъчно обслужване',
-  },
-  {
-    icon: Users,
-    title: 'Счетоводни услуги ТРЗ и Човешки ресурси',
-    price: '100–150 €',
-    description: 'ТРЗ, кадри, осигуровки',
-    details: 'Изготвяне на ведомости за заплати, трудови договори, допълнителни споразумения и заповеди за прекратяване. Подаване на осигурителни декларации, болнични листове и документи към НАП и НОИ. Цялостно кадрово обслужване.',
-    searchQuery: 'Човешки ресурси',
-  },
-  {
-    icon: Shield,
-    title: 'Счетоводни услуги Одит',
-    price: '250–300 €',
-    description: 'Финансов одит и ревизии',
-    details: 'Независима проверка на финансовите отчети съгласно международните стандарти. Вътрешен одит и контрол, ревизии по искане на ръководството, одит за съответствие с нормативната уредба. Резултатите помагат за по-информирани управленски решения.',
-    searchQuery: 'Одит',
-  },
-];
-
 const SPECIALIZATIONS = ['Пълно счетоводство', 'Данъчно обслужване', 'ДДС', 'ЗДДФЛ', 'ЗКПО', 'Човешки ресурси', 'Заплати', 'Одит', 'Осигуровки', 'ТРЗ'];
 
 interface DirectoryEntry {
@@ -89,14 +53,12 @@ export default function Index() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
-  const serviceParam = searchParams.get('service');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [cityFilter, setCityFilter] = useState('all');
   const [specFilter, setSpecFilter] = useState('all');
   const [directory, setDirectory] = useState<DirectoryEntry[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedService, setExpandedService] = useState<string | null>(null);
   const [selectedAccountant, setSelectedAccountant] = useState<DirectoryEntry | null>(null);
   const [reviewCounts, setReviewCounts] = useState<Record<string, { avg: number; count: number }>>({});
 
@@ -104,17 +66,6 @@ export default function Index() {
     fetchAll();
   }, []);
 
-  useEffect(() => {
-    if (serviceParam) {
-      const match = SERVICE_CARDS.find(s => s.title.includes(serviceParam) || s.searchQuery.includes(serviceParam));
-      if (match) {
-        setExpandedService(match.title);
-        setTimeout(() => {
-          document.querySelector('#services-section')?.scrollIntoView({ behavior: 'smooth' });
-        }, 200);
-      }
-    }
-  }, [serviceParam]);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -260,62 +211,11 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Services & Prices */}
-      <section id="services-section" className="container mx-auto px-4 py-20">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center text-3xl font-bold"
-        >Услуги и цени</motion.h2>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {SERVICE_CARDS.map((s, i) => (
-            <motion.div
-              key={s.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-            >
-              <Card
-                className="group cursor-pointer transition-all hover:shadow-lg hover:border-primary/40 h-full"
-                onClick={() => setExpandedService(expandedService === s.title ? null : s.title)}
-              >
-                <CardContent className="flex flex-col items-center p-6 text-center">
-                  <div className="rounded-xl bg-primary/10 p-4 transition-colors group-hover:bg-primary/20">
-                    <s.icon className="h-8 w-8 text-primary" />
-                  </div>
-                  <h3 className="mt-4 text-base font-semibold leading-tight">{s.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{s.description}</p>
-                  <Badge className="mt-2" variant="outline">
-                    <Euro className="mr-1 h-3 w-3" /> {s.price}
-                  </Badge>
-                  <AnimatePresence>
-                    {expandedService === s.title && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden"
-                      >
-                        <p className="mt-4 text-xs text-muted-foreground/80 leading-relaxed text-left">{s.details}</p>
-                        <Button
-                          size="sm"
-                          className="mt-3 w-full"
-                          onClick={(e) => { e.stopPropagation(); setSearchQuery(s.searchQuery); }}
-                        >
-                          Намери специалист <ArrowRight className="ml-1 h-3 w-3" />
-                        </Button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+      {/* Services link */}
+      <section className="container mx-auto px-4 py-16 text-center">
+        <Button size="lg" variant="outline" onClick={() => navigate('/services')}>
+          Услуги и цени <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
       </section>
 
       {/* Search Filters + Results */}
