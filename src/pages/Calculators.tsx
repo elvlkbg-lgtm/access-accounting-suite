@@ -441,9 +441,9 @@ export default function Calculators() {
         <div className="mx-auto max-w-2xl">
           <Tabs defaultValue="salary">
             <TabsList className="mb-6 flex w-full flex-wrap">
-              <TabsTrigger value="salary" className="flex-1 gap-1"><Banknote className="h-4 w-4" /> Заплата</TabsTrigger>
+              <TabsTrigger value="salary" className="flex-1 gap-1"><Banknote className="h-4 w-4" /> Трудов договор</TabsTrigger>
+              <TabsTrigger value="civil" className="flex-1 gap-1"><FileText className="h-4 w-4" /> Граждански договор</TabsTrigger>
               <TabsTrigger value="vat" className="flex-1 gap-1"><Receipt className="h-4 w-4" /> ДДС</TabsTrigger>
-              <TabsTrigger value="civil" className="flex-1 gap-1"><FileText className="h-4 w-4" /> Граждански</TabsTrigger>
               <TabsTrigger value="health" className="flex-1 gap-1"><HeartPulse className="h-4 w-4" /> Здравно</TabsTrigger>
               <TabsTrigger value="interest" className="flex-1 gap-1"><Percent className="h-4 w-4" /> Лихви</TabsTrigger>
               <TabsTrigger value="tax" className="flex-1 gap-1"><Calculator className="h-4 w-4" /> Данък</TabsTrigger>

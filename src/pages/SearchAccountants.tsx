@@ -300,6 +300,8 @@ export default function SearchAccountants() {
                         </div>
                         <p className="mt-2 text-xs text-muted-foreground">{d.qualification}</p>
                         {d.ides_number && <p className="text-xs text-muted-foreground">ИДЕС №{d.ides_number}</p>}
+                        {d.email && <p className="text-xs text-muted-foreground">✉ {d.email}</p>}
+                        {(d as any).phone && <p className="text-xs text-muted-foreground">📞 {(d as any).phone}</p>}
                       </CardContent>
                     </Card>
                   ))}
