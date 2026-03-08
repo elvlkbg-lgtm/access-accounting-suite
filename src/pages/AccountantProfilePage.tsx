@@ -83,8 +83,14 @@ export default function AccountantProfilePage() {
             <Card>
               <CardContent className="p-8">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
-                    {profile.profiles?.full_name?.[0] || '?'}
+                  <div>
+                    {profile.profiles?.avatar_url ? (
+                      <img src={profile.profiles.avatar_url} alt="" className="h-16 w-16 rounded-full object-cover border" />
+                    ) : (
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
+                        {profile.profiles?.full_name?.[0] || '?'}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold">{profile.profiles?.full_name || 'Счетоводител'}</h1>
