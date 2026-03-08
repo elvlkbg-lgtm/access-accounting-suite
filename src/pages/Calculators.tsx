@@ -5,9 +5,12 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Banknote, Receipt, FileText } from 'lucide-react';
+import { Banknote, Receipt, FileText, HeartPulse, Percent, Calculator } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import HealthInsuranceCalculator from '@/components/calculators/HealthInsuranceCalculator';
+import InterestCalculator from '@/components/calculators/InterestCalculator';
+import IncomeTaxCalculator from '@/components/calculators/IncomeTaxCalculator';
 
 /* ──── Bulgarian 2026 rates ──── */
 const MAX_OSV = 3750;
