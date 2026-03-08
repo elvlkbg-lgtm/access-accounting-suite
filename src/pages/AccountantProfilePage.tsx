@@ -33,10 +33,18 @@ export default function AccountantProfilePage() {
   const fetchProfile = async () => {
     const { data } = await supabase
       .from('accountant_profiles')
-      .select('*, profiles(full_name, avatar_url, email)')
+      .select('*')
       .eq('id', id)
       .single();
-    setProfile(data);
+    if (data) {
+      // Fetch profile info separately (no FK join available)
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('full_name, avatar_url, email')
+        .eq('id', data.user_id)
+        .single();
+      setProfile({ ...data, profiles: profileData });
+    }
     setLoading(false);
   };
 
@@ -75,8 +83,14 @@ export default function AccountantProfilePage() {
             <Card>
               <CardContent className="p-8">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
-                    {profile.profiles?.full_name?.[0] || '?'}
+                  <div>
+                    {profile.profiles?.avatar_url ? (
+                      <img src={profile.profiles.avatar_url} alt="" className="h-16 w-16 rounded-full object-cover border" />
+                    ) : (
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
+                        {profile.profiles?.full_name?.[0] || '?'}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold">{profile.profiles?.full_name || 'Счетоводител'}</h1>
