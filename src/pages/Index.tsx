@@ -260,62 +260,11 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Services & Prices */}
-      <section id="services-section" className="container mx-auto px-4 py-20">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center text-3xl font-bold"
-        >Услуги и цени</motion.h2>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {SERVICE_CARDS.map((s, i) => (
-            <motion.div
-              key={s.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-            >
-              <Card
-                className="group cursor-pointer transition-all hover:shadow-lg hover:border-primary/40 h-full"
-                onClick={() => setExpandedService(expandedService === s.title ? null : s.title)}
-              >
-                <CardContent className="flex flex-col items-center p-6 text-center">
-                  <div className="rounded-xl bg-primary/10 p-4 transition-colors group-hover:bg-primary/20">
-                    <s.icon className="h-8 w-8 text-primary" />
-                  </div>
-                  <h3 className="mt-4 text-base font-semibold leading-tight">{s.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{s.description}</p>
-                  <Badge className="mt-2" variant="outline">
-                    <Euro className="mr-1 h-3 w-3" /> {s.price}
-                  </Badge>
-                  <AnimatePresence>
-                    {expandedService === s.title && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden"
-                      >
-                        <p className="mt-4 text-xs text-muted-foreground/80 leading-relaxed text-left">{s.details}</p>
-                        <Button
-                          size="sm"
-                          className="mt-3 w-full"
-                          onClick={(e) => { e.stopPropagation(); setSearchQuery(s.searchQuery); }}
-                        >
-                          Намери специалист <ArrowRight className="ml-1 h-3 w-3" />
-                        </Button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+      {/* Services link */}
+      <section className="container mx-auto px-4 py-16 text-center">
+        <Button size="lg" variant="outline" onClick={() => navigate('/services')}>
+          Услуги и цени <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
       </section>
 
       {/* Search Filters + Results */}
