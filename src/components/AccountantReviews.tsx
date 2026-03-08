@@ -90,13 +90,12 @@ export default function AccountantReviews({ accountantId }: { accountantId: stri
   };
 
   const handleSubmit = async () => {
-    if (!user) { toast.error('Моля, влезте в профила си'); return; }
     if (rating === 0) { toast.error('Моля, изберете оценка'); return; }
 
     setSubmitting(true);
-    const { error } = await supabase
-      .from('accountant_reviews')
-      .insert({ accountant_id: accountantId, reviewer_id: user.id, rating, comment: comment || null });
+    const insertData: any = { accountant_id: accountantId, rating, comment: comment || null };
+    if (user) insertData.reviewer_id = user.id;
+    const { error } = await supabase.from('accountant_reviews').insert(insertData);
 
     if (error) {
       toast.error('Грешка при изпращане на отзив');
@@ -127,8 +126,8 @@ export default function AccountantReviews({ accountantId }: { accountantId: stri
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Submit review */}
-        {user && (
+        {/* Always show review form */}
+        {(
           <div className="space-y-3 rounded-lg border p-4">
             <p className="text-sm font-medium">Оставете отзив</p>
             <StarRating value={rating} onChange={setRating} />
