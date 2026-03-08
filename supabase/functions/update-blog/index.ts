@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     // Use Lovable AI to generate blog content based on current Bulgarian accounting news
     const today = new Date().toISOString().split('T')[0];
 
-    const aiResponse = await fetch('https://ai-gateway.lovable.dev/v1/chat/completions', {
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${lovableApiKey}`,
