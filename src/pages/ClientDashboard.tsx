@@ -12,11 +12,14 @@ import Navbar from '@/components/Navbar';
 import MessagingPanel from '@/components/MessagingPanel';
 import DocumentManager from '@/components/DocumentManager';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function ClientDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'requests';
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [requests, setRequests] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [docCount, setDocCount] = useState(0);
@@ -154,7 +157,7 @@ export default function ClientDashboard() {
           </CardContent></Card>
         </div>
 
-        <Tabs defaultValue="requests">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="flex-wrap">
             <TabsTrigger value="requests">Заявки</TabsTrigger>
             <TabsTrigger value="favorites" className="gap-1"><Heart className="h-4 w-4" /> Предпочитани ({favorites.length})</TabsTrigger>

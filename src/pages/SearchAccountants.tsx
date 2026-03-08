@@ -252,9 +252,11 @@ export default function SearchAccountants() {
                             Консултация
                           </Button>
                           {nameToAccProfileId[d.full_name] && (
-                            <Button size="sm" variant="ghost" onClick={() => toggleFavorite(nameToAccProfileId[d.full_name])}
-                              className={favoriteIds.has(nameToAccProfileId[d.full_name]) ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-red-500'}>
+                            <Button size="sm" variant={favoriteIds.has(nameToAccProfileId[d.full_name]) ? 'destructive' : 'outline'}
+                              onClick={() => toggleFavorite(nameToAccProfileId[d.full_name])}
+                              className="gap-1">
                               <Heart className={`h-4 w-4 ${favoriteIds.has(nameToAccProfileId[d.full_name]) ? 'fill-current' : ''}`} />
+                              {favoriteIds.has(nameToAccProfileId[d.full_name]) ? '' : ''}
                             </Button>
                           )}
                         </div>

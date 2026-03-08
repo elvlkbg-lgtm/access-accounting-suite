@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +25,9 @@ const EXTERNAL_LINKS = [
 
 export default function AccountantDashboard() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'requests';
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [accountantProfile, setAccountantProfile] = useState<any>(null);
   const [requests, setRequests] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
@@ -219,7 +223,7 @@ export default function AccountantDashboard() {
           <Card><CardContent className="flex items-center gap-4 p-6"><MessageCircle className="h-8 w-8 text-primary" /><div><p className="text-2xl font-bold">{unreadCount}</p><p className="text-sm text-muted-foreground">Нови съобщения</p></div></CardContent></Card>
         </div>
 
-        <Tabs defaultValue="requests">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="flex-wrap">
             <TabsTrigger value="requests">Заявки</TabsTrigger>
             <TabsTrigger value="profile">Профил</TabsTrigger>
