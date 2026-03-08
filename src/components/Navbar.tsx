@@ -23,13 +23,13 @@ export default function Navbar() {
   };
 
   const navLinks = user ? [
-    { to: '/dashboard', label: 'Търси счетоводител' },
+    { to: '/search', label: 'Търси счетоводител' },
     { to: '/calendar', label: 'Календар' },
     { to: '/consultations', label: 'Консултации' },
     { to: '/calculators', label: 'Калкулатори' },
     { to: '/blog', label: 'Блог' },
   ] : [
-    { to: '/', label: 'Търси счетоводител' },
+    { to: '/search', label: 'Търси счетоводител' },
     { to: '/calendar', label: 'Календар' },
     { to: '/consultations', label: 'Консултации' },
     { to: '/calculators', label: 'Калкулатори' },
