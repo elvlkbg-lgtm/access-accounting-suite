@@ -83,10 +83,23 @@ export default function Blog() {
   const [lawFilter, setLawFilter] = useState<'all' | 'law' | 'standard' | 'international'>('all');
   const [articles, setArticles] = useState<Article[]>(STATIC_ARTICLES);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [faqItems, setFaqItems] = useState<{q: string; a: string}[]>(FALLBACK_FAQ_ITEMS);
 
   useEffect(() => {
     fetchArticles();
+    fetchFaqItems();
   }, []);
+
+  const fetchFaqItems = async () => {
+    const { data } = await supabase
+      .from('faq_items')
+      .select('question, answer')
+      .order('created_at', { ascending: true });
+
+    if (data && data.length > 0) {
+      setFaqItems(data.map(d => ({ q: d.question, a: d.answer })));
+    }
+  };
 
   const fetchArticles = async () => {
     const { data } = await supabase
@@ -274,10 +287,11 @@ export default function Blog() {
             <div className="mb-6 text-center">
               <HelpCircle className="mx-auto h-10 w-10 text-primary mb-3" />
               <h2 className="text-2xl font-bold">Често задавани въпроси</h2>
-              <p className="mt-1 text-muted-foreground">Отговори на най-честите въпроси за счетоводните услуги</p>
+              <p className="mt-1 text-muted-foreground">Отговори на най-честите въпроси за счетоводните услуги • Цени в EUR (€)</p>
+              <p className="mt-1 text-xs text-muted-foreground">Източник: <a href="https://portal.nra.bg/details/questions-and-answers" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">portal.nra.bg</a> • Обновява се ежедневно в 12:00</p>
             </div>
             <Accordion type="single" collapsible className="space-y-2">
-              {FAQ_ITEMS.map((item, i) => (
+              {faqItems.map((item, i) => (
                 <AccordionItem key={i} value={`faq-${i}`} className="rounded-lg border bg-card px-4">
                   <AccordionTrigger className="text-left font-medium hover:no-underline">
                     {item.q}
