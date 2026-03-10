@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
-import { Calculator, User, Briefcase, ArrowLeft, ArrowRight, X, MapPin, Phone, Camera } from 'lucide-react';
+import { Calculator, User, Briefcase, ArrowLeft, ArrowRight, X, MapPin, Phone, Camera, Eye, EyeOff } from 'lucide-react';
 
 const SPECIALIZATION_OPTIONS = [
   'Пълно счетоводство', 'Данъчно обслужване', 'ДДС', 'ЗДДФЛ', 'ЗКПО',
