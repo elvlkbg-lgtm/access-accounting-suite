@@ -122,18 +122,36 @@ export default function SearchAccountants() {
       });
     }
 
-    // Map display_name -> accountant_profiles id & rating
+    // Map display_name -> accountant_profiles id & rating, and fetch avatars
     const mapping: Record<string, string> = {};
+    const userIdMap: Record<string, string> = {};
     (accData || []).forEach((ap: any) => {
       if (ap.display_name) {
         mapping[ap.display_name] = ap.id;
+        userIdMap[ap.display_name] = ap.user_id;
       }
     });
 
-    // Attach rating to directory entries (check by accountant_profile id or directory entry id)
+    // Fetch avatar URLs for platform accountants
+    const userIds = Object.values(userIdMap);
+    let avatarMap: Record<string, string> = {};
+    if (userIds.length > 0) {
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, avatar_url')
+        .in('id', userIds);
+      if (profilesData) {
+        profilesData.forEach((p: any) => {
+          if (p.avatar_url) avatarMap[p.id] = p.avatar_url;
+        });
+      }
+    }
+
+    // Attach rating and avatar to directory entries
     const entries = ((dirData as any[]) || []).map((d: any) => ({
       ...d,
       rating: ratingMap[mapping[d.full_name]] ?? ratingMap[d.id] ?? 0,
+      avatar_url: avatarMap[userIdMap[d.full_name]] || null,
     }));
 
     setDirectory(entries);
