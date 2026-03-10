@@ -300,9 +300,14 @@ export default function SearchAccountants() {
                     <Card key={d.id} className="transition-all hover:shadow-lg hover:border-primary/30">
                       <CardContent className="p-5">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                            {d.full_name[0]}
-                          </div>
+                          <Avatar className="h-11 w-11">
+                            {d.avatar_url ? (
+                              <AvatarImage src={d.avatar_url} alt={d.full_name} />
+                            ) : null}
+                            <AvatarFallback className="bg-primary/10 text-sm font-bold text-primary">
+                              {d.full_name[0]}
+                            </AvatarFallback>
+                          </Avatar>
                           <div className="min-w-0">
                             <h3 className="font-semibold text-sm truncate">{d.full_name}</h3>
                             {d.city && (
