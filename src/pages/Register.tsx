@@ -31,6 +31,7 @@ export default function Register() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [direction, setDirection] = useState(1);
+  const [showPassword, setShowPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const totalSteps = role === 'accountant' ? 5 : 3;
