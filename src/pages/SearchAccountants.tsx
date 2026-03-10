@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, MapPin, Filter, Users, BookOpen, ArrowUpDown, Heart, Star } from 'lucide-react';
+import { Search, MapPin, Filter, Users, BookOpen, ArrowUpDown, Heart, Star, UserCircle } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { toast } from 'sonner';
@@ -26,6 +27,7 @@ interface DirectoryEntry {
   email: string | null;
   phone: string | null;
   rating?: number | null;
+  avatar_url?: string | null;
 }
 
 const sortEntries = (entries: DirectoryEntry[], sort: SortOption): DirectoryEntry[] => {
@@ -120,18 +122,36 @@ export default function SearchAccountants() {
       });
     }
 
-    // Map display_name -> accountant_profiles id & rating
+    // Map display_name -> accountant_profiles id & rating, and fetch avatars
     const mapping: Record<string, string> = {};
+    const userIdMap: Record<string, string> = {};
     (accData || []).forEach((ap: any) => {
       if (ap.display_name) {
         mapping[ap.display_name] = ap.id;
+        userIdMap[ap.display_name] = ap.user_id;
       }
     });
 
-    // Attach rating to directory entries (check by accountant_profile id or directory entry id)
+    // Fetch avatar URLs for platform accountants
+    const userIds = Object.values(userIdMap);
+    let avatarMap: Record<string, string> = {};
+    if (userIds.length > 0) {
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, avatar_url')
+        .in('id', userIds);
+      if (profilesData) {
+        profilesData.forEach((p: any) => {
+          if (p.avatar_url) avatarMap[p.id] = p.avatar_url;
+        });
+      }
+    }
+
+    // Attach rating and avatar to directory entries
     const entries = ((dirData as any[]) || []).map((d: any) => ({
       ...d,
       rating: ratingMap[mapping[d.full_name]] ?? ratingMap[d.id] ?? 0,
+      avatar_url: avatarMap[userIdMap[d.full_name]] || null,
     }));
 
     setDirectory(entries);
@@ -280,9 +300,14 @@ export default function SearchAccountants() {
                     <Card key={d.id} className="transition-all hover:shadow-lg hover:border-primary/30">
                       <CardContent className="p-5">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                            {d.full_name[0]}
-                          </div>
+                          <Avatar className="h-11 w-11">
+                            {d.avatar_url ? (
+                              <AvatarImage src={d.avatar_url} alt={d.full_name} />
+                            ) : null}
+                            <AvatarFallback className="bg-primary/10 text-sm font-bold text-primary">
+                              {d.full_name[0]}
+                            </AvatarFallback>
+                          </Avatar>
                           <div className="min-w-0">
                             <h3 className="font-semibold text-sm truncate">{d.full_name}</h3>
                             {d.city && (

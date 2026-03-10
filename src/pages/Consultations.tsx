@@ -6,7 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Video, Calendar, Clock, User, CheckCircle, MessageSquare, Check, X } from 'lucide-react';
+import { Video, Calendar, Clock, User, CheckCircle, MessageSquare, Check, X, ChevronsUpDown, Search } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -35,6 +37,7 @@ export default function Consultations() {
   const [myConsultations, setMyConsultations] = useState<any[]>([]);
   const [clientNames, setClientNames] = useState<Record<string, string>>({});
   const [booked, setBooked] = useState(false);
+  const [accComboOpen, setAccComboOpen] = useState(false);
 
   const isAccountant = hasRole('accountant');
 
@@ -218,18 +221,38 @@ export default function Consultations() {
                   <>
                     <div className="space-y-2">
                       <Label>Счетоводител ({accountants.length} налични)</Label>
-                      <Select value={selectedAccountant} onValueChange={setSelectedAccountant}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Изберете счетоводител" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {accountants.map((a) => (
-                            <SelectItem key={a.id} value={a.id}>
-                              {a.display_name || 'Счетоводител'}{a.location ? ` — ${a.location}` : ''}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={accComboOpen} onOpenChange={setAccComboOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" role="combobox" aria-expanded={accComboOpen} className="w-full justify-between font-normal">
+                            {selectedAccountant
+                              ? (accountants.find(a => a.id === selectedAccountant)?.display_name || 'Счетоводител')
+                              : 'Изберете счетоводител...'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="Търсене по име..." />
+                            <CommandList>
+                              <CommandEmpty>Няма намерени счетоводители.</CommandEmpty>
+                              <CommandGroup>
+                                {accountants.map((a) => (
+                                  <CommandItem
+                                    key={a.id}
+                                    value={a.display_name || 'Счетоводител'}
+                                    onSelect={() => {
+                                      setSelectedAccountant(a.id);
+                                      setAccComboOpen(false);
+                                    }}
+                                  >
+                                    {a.display_name || 'Счетоводител'}{a.location ? ` — ${a.location}` : ''}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
