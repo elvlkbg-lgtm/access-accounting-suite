@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
-import { Calculator } from 'lucide-react';
+import { Calculator, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
