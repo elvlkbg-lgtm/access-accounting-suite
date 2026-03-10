@@ -37,6 +37,7 @@ export default function Consultations() {
   const [myConsultations, setMyConsultations] = useState<any[]>([]);
   const [clientNames, setClientNames] = useState<Record<string, string>>({});
   const [booked, setBooked] = useState(false);
+  const [accComboOpen, setAccComboOpen] = useState(false);
 
   const isAccountant = hasRole('accountant');
 
