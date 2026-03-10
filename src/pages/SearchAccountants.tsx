@@ -27,6 +27,7 @@ interface DirectoryEntry {
   email: string | null;
   phone: string | null;
   rating?: number | null;
+  avatar_url?: string | null;
 }
 
 const sortEntries = (entries: DirectoryEntry[], sort: SortOption): DirectoryEntry[] => {
