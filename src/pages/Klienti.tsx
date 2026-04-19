@@ -12,6 +12,7 @@ import { Zap, ShieldCheck, Gift, ClipboardList, Mail, Handshake, Quote, CheckCir
 export default function Klienti() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -32,7 +33,7 @@ export default function Klienti() {
       toast.error('Възникна грешка. Моля, опитайте отново.');
       return;
     }
-    toast.success('Благодарим Ви! Ще се свържем с Вас скоро.');
+    setSubmitted(true);
     setForm({ name: '', phone: '', business_type: '', documents_per_month: '' });
   };
 
