@@ -222,38 +222,48 @@ export default function Consultations() {
                   <>
                     <div className="space-y-2">
                       <Label>Счетоводител ({accountants.length} налични)</Label>
-                      <Popover open={accComboOpen} onOpenChange={setAccComboOpen}>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" role="combobox" aria-expanded={accComboOpen} className="w-full justify-between font-normal">
-                            {selectedAccountant
-                              ? (accountants.find(a => a.id === selectedAccountant)?.display_name || 'Счетоводител')
-                              : 'Изберете счетоводител...'}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                          <Command>
-                            <CommandInput placeholder="Търсене по име..." />
-                            <CommandList>
-                              <CommandEmpty>Няма намерени счетоводители.</CommandEmpty>
-                              <CommandGroup>
-                                {accountants.map((a) => (
-                                  <CommandItem
+                      <div className="relative">
+                        <Input
+                          placeholder="Започнете да пишете име или град..."
+                          value={accQuery}
+                          onChange={(e) => {
+                            setAccQuery(e.target.value);
+                            if (selectedAccountant) setSelectedAccountant('');
+                          }}
+                          onFocus={() => setAccFocused(true)}
+                          onBlur={() => setTimeout(() => setAccFocused(false), 150)}
+                        />
+                        {accFocused && accQuery.trim().length > 0 && !selectedAccountant && (() => {
+                          const q = accQuery.trim().toLowerCase();
+                          const matches = accountants.filter(a =>
+                            (a.display_name || '').toLowerCase().includes(q) ||
+                            (a.location || '').toLowerCase().includes(q)
+                          );
+                          return (
+                            <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover shadow-md">
+                              {matches.length === 0 ? (
+                                <div className="px-3 py-2 text-sm text-muted-foreground">Няма съвпадения.</div>
+                              ) : (
+                                matches.map(a => (
+                                  <button
+                                    type="button"
                                     key={a.id}
-                                    value={a.display_name || 'Счетоводител'}
-                                    onSelect={() => {
+                                    onMouseDown={(e) => e.preventDefault()}
+                                    onClick={() => {
                                       setSelectedAccountant(a.id);
-                                      setAccComboOpen(false);
+                                      setAccQuery((a.display_name || 'Счетоводител') + (a.location ? ` — ${a.location}` : ''));
+                                      setAccFocused(false);
                                     }}
+                                    className="block w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground"
                                   >
                                     {a.display_name || 'Счетоводител'}{a.location ? ` — ${a.location}` : ''}
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
