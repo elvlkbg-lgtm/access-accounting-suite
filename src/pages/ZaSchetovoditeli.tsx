@@ -9,6 +9,7 @@ import { Eye, Wallet, MessagesSquare, ShoppingBag, Cpu, Factory, Truck, Globe, S
 
 export default function ZaSchetovoditeli() {
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
     firm_name: '',
     city: '',
@@ -32,7 +33,7 @@ export default function ZaSchetovoditeli() {
       toast.error('Възникна грешка. Моля, опитайте отново.');
       return;
     }
-    toast.success('Благодарим Ви! Ще се свържем с Вас скоро.');
+    setSubmitted(true);
     setForm({ firm_name: '', city: '', experience_years: '', email: '' });
   };
 
