@@ -21,6 +21,7 @@ import AccountingCalendar from "./pages/AccountingCalendar";
 import ContactAccountant from "./pages/ContactAccountant";
 import SearchAccountants from "./pages/SearchAccountants";
 import Services from "./pages/Services";
+import Klienti from "./pages/Klienti";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/search" element={<SearchAccountants />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/klienti" element={<Klienti />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/calculators" element={<Calculators />} />
             <Route path="/calendar" element={<AccountingCalendar />} />
