@@ -135,63 +135,78 @@ export default function ZaSchetovoditeli() {
         <div className="container mx-auto max-w-2xl">
           <Card className="border-0 shadow-xl">
             <CardContent className="p-8 md:p-10">
-              <h2 className="mb-2 text-center text-3xl font-bold">Заявете интерес за участие</h2>
-              <p className="mb-8 text-center text-muted-foreground">
-                Попълнете формата и нашият екип ще се свърже с Вас
-              </p>
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="firm_name">Име на кантора / Счетоводител *</Label>
-                  <Input
-                    id="firm_name"
-                    value={form.firm_name}
-                    onChange={(e) => setForm({ ...form, firm_name: e.target.value })}
-                    placeholder="Име"
-                    required
-                  />
+              {submitted ? (
+                <div className="py-10 text-center">
+                  <CheckCircle2 className="mx-auto mb-4 h-16 w-16 text-emerald-600" />
+                  <h2 className="mb-2 text-3xl font-bold">Благодарим Ви!</h2>
+                  <p className="mb-6 text-muted-foreground">
+                    Получихме Вашата заявка. Нашият екип ще се свърже с Вас скоро.
+                  </p>
+                  <Button variant="outline" onClick={() => setSubmitted(false)}>
+                    Изпрати нова заявка
+                  </Button>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Град</Label>
-                    <Input
-                      id="city"
-                      value={form.city}
-                      onChange={(e) => setForm({ ...form, city: e.target.value })}
-                      placeholder="напр. София"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="experience_years">Години опит</Label>
-                    <Input
-                      id="experience_years"
-                      type="number"
-                      min="0"
-                      value={form.experience_years}
-                      onChange={(e) => setForm({ ...form, experience_years: e.target.value })}
-                      placeholder="напр. 5"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Имейл за връзка *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="email@domain.bg"
-                    required
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
-                  disabled={loading}
-                >
-                  {loading ? 'Изпращане...' : 'Изпрати заявка'}
-                </Button>
-              </form>
+              ) : (
+                <>
+                  <h2 className="mb-2 text-center text-3xl font-bold">Заявете интерес за участие</h2>
+                  <p className="mb-8 text-center text-muted-foreground">
+                    Попълнете формата и нашият екип ще се свърже с Вас
+                  </p>
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="firm_name">Име на кантора / Счетоводител *</Label>
+                      <Input
+                        id="firm_name"
+                        value={form.firm_name}
+                        onChange={(e) => setForm({ ...form, firm_name: e.target.value })}
+                        placeholder="Име"
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="city">Град</Label>
+                        <Input
+                          id="city"
+                          value={form.city}
+                          onChange={(e) => setForm({ ...form, city: e.target.value })}
+                          placeholder="напр. София"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="experience_years">Години опит</Label>
+                        <Input
+                          id="experience_years"
+                          type="number"
+                          min="0"
+                          value={form.experience_years}
+                          onChange={(e) => setForm({ ...form, experience_years: e.target.value })}
+                          placeholder="напр. 5"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Имейл за връзка *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        placeholder="email@domain.bg"
+                        required
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
+                      disabled={loading}
+                    >
+                      {loading ? 'Изпращане...' : 'Изпрати заявка'}
+                    </Button>
+                  </form>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
