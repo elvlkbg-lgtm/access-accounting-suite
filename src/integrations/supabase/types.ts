@@ -161,6 +161,33 @@ export type Database = {
         }
         Relationships: []
       }
+      client_leads: {
+        Row: {
+          business_type: string | null
+          created_at: string
+          documents_per_month: string | null
+          id: string
+          name: string
+          phone: string
+        }
+        Insert: {
+          business_type?: string | null
+          created_at?: string
+          documents_per_month?: string | null
+          id?: string
+          name: string
+          phone: string
+        }
+        Update: {
+          business_type?: string | null
+          created_at?: string
+          documents_per_month?: string | null
+          id?: string
+          name?: string
+          phone?: string
+        }
+        Relationships: []
+      }
       consultations: {
         Row: {
           accountant_id: string
