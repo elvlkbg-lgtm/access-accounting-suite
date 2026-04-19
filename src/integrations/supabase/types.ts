@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      accountant_leads: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string
+          experience_years: string | null
+          firm_name: string
+          id: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email: string
+          experience_years?: string | null
+          firm_name: string
+          id?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string
+          experience_years?: string | null
+          firm_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
       accountant_profiles: {
         Row: {
           bio: string | null
