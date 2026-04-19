@@ -7,11 +7,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Zap, ShieldCheck, Gift, ClipboardList, Mail, Handshake, Quote } from 'lucide-react';
+import { Zap, ShieldCheck, Gift, ClipboardList, Mail, Handshake, Quote, CheckCircle2 } from 'lucide-react';
 
 export default function Klienti() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -32,7 +33,7 @@ export default function Klienti() {
       toast.error('Възникна грешка. Моля, опитайте отново.');
       return;
     }
-    toast.success('Благодарим Ви! Ще се свържем с Вас скоро.');
+    setSubmitted(true);
     setForm({ name: '', phone: '', business_type: '', documents_per_month: '' });
   };
 
@@ -131,69 +132,84 @@ export default function Klienti() {
         <div className="container mx-auto max-w-2xl">
           <Card className="border-0 shadow-xl">
             <CardContent className="p-8 md:p-10">
-              <h2 className="mb-2 text-center text-3xl font-bold">Започнете своето запитване</h2>
-              <p className="mb-8 text-center text-muted-foreground">
-                Попълнете формата и ще се свържем с Вас в най-кратки срокове
-              </p>
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Име *</Label>
-                  <Input
-                    id="name"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="Вашето име"
-                    required
-                  />
+              {submitted ? (
+                <div className="py-10 text-center">
+                  <CheckCircle2 className="mx-auto mb-4 h-16 w-16 text-primary" />
+                  <h2 className="mb-2 text-3xl font-bold">Благодарим Ви!</h2>
+                  <p className="mb-6 text-muted-foreground">
+                    Получихме Вашето запитване. Нашият екип ще се свърже с Вас в най-кратки срокове.
+                  </p>
+                  <Button variant="outline" onClick={() => setSubmitted(false)}>
+                    Изпрати ново запитване
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Телефон *</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="+359 ..."
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Тип бизнес</Label>
-                  <Select
-                    value={form.business_type}
-                    onValueChange={(v) => setForm({ ...form, business_type: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Изберете тип" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="EOOD">ЕООД</SelectItem>
-                      <SelectItem value="Freelancer">Свободна професия</SelectItem>
-                      <SelectItem value="Other">Друго</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Приблизителен брой документи месечно</Label>
-                  <Select
-                    value={form.documents_per_month}
-                    onValueChange={(v) => setForm({ ...form, documents_per_month: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Изберете обем" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0-20">До 20</SelectItem>
-                      <SelectItem value="20-50">20 - 50</SelectItem>
-                      <SelectItem value="50-100">50 - 100</SelectItem>
-                      <SelectItem value="100+">Над 100</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                  {loading ? 'Изпращане...' : 'Изпрати запитване'}
-                </Button>
-              </form>
+              ) : (
+                <>
+                  <h2 className="mb-2 text-center text-3xl font-bold">Започнете своето запитване</h2>
+                  <p className="mb-8 text-center text-muted-foreground">
+                    Попълнете формата и ще се свържем с Вас в най-кратки срокове
+                  </p>
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Име *</Label>
+                      <Input
+                        id="name"
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        placeholder="Вашето име"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Телефон *</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={form.phone}
+                        onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                        placeholder="+359 ..."
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Тип бизнес</Label>
+                      <Select
+                        value={form.business_type}
+                        onValueChange={(v) => setForm({ ...form, business_type: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Изберете тип" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="EOOD">ЕООД</SelectItem>
+                          <SelectItem value="Freelancer">Свободна професия</SelectItem>
+                          <SelectItem value="Other">Друго</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Приблизителен брой документи месечно</Label>
+                      <Select
+                        value={form.documents_per_month}
+                        onValueChange={(v) => setForm({ ...form, documents_per_month: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Изберете обем" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0-20">До 20</SelectItem>
+                          <SelectItem value="20-50">20 - 50</SelectItem>
+                          <SelectItem value="50-100">50 - 100</SelectItem>
+                          <SelectItem value="100+">Над 100</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button type="submit" size="lg" className="w-full" disabled={loading}>
+                      {loading ? 'Изпращане...' : 'Изпрати запитване'}
+                    </Button>
+                  </form>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
