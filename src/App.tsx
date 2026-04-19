@@ -22,6 +22,7 @@ import ContactAccountant from "./pages/ContactAccountant";
 import SearchAccountants from "./pages/SearchAccountants";
 import Services from "./pages/Services";
 import Klienti from "./pages/Klienti";
+import ZaSchetovoditeli from "./pages/ZaSchetovoditeli";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/search" element={<SearchAccountants />} />
             <Route path="/services" element={<Services />} />
             <Route path="/klienti" element={<Klienti />} />
+            <Route path="/za-schetovoditeli" element={<ZaSchetovoditeli />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/calculators" element={<Calculators />} />
             <Route path="/calendar" element={<AccountingCalendar />} />
