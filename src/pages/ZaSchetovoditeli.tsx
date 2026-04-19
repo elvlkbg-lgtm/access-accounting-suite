@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Eye, Wallet, MessagesSquare, ShoppingBag, Cpu, Factory, Truck, Globe, ShieldCheck } from 'lucide-react';
+import { Eye, Wallet, MessagesSquare, ShoppingBag, Cpu, Factory, Truck, Globe, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 export default function ZaSchetovoditeli() {
   const [loading, setLoading] = useState(false);
