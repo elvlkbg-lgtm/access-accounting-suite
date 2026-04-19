@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Zap, ShieldCheck, Gift, ClipboardList, Mail, Handshake, Quote } from 'lucide-react';
+import { Zap, ShieldCheck, Gift, ClipboardList, Mail, Handshake, Quote, CheckCircle2 } from 'lucide-react';
 
 export default function Klienti() {
   const navigate = useNavigate();
