@@ -29,6 +29,7 @@ export default function Navbar() {
     { to: '/consultations', label: 'Консултации' },
     { to: '/calculators', label: 'Калкулатори' },
     { to: '/blog', label: 'Блог' },
+    { to: '/klienti', label: 'За клиенти' },
   ] : [
     { to: '/search', label: 'Търси счетоводител' },
     { to: '/services', label: 'Услуги и цени' },
@@ -36,6 +37,7 @@ export default function Navbar() {
     { to: '/consultations', label: 'Консултации' },
     { to: '/calculators', label: 'Калкулатори' },
     { to: '/blog', label: 'Блог' },
+    { to: '/klienti', label: 'За клиенти' },
   ];
 
   return (
