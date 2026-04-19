@@ -208,6 +208,20 @@ export default function Index() {
               />
             </div>
           </motion.form>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.55 }}
+            className="mt-8 flex flex-wrap justify-center gap-4"
+          >
+            <Button size="lg" onClick={() => navigate('/klienti')} className="text-base">
+              За клиенти <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            <Button size="lg" variant="secondary" onClick={() => navigate('/za-schetovoditeli')} className="text-base">
+              За счетоводители <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </motion.div>
         </div>
       </section>
 
