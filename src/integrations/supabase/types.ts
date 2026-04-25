@@ -190,30 +190,50 @@ export type Database = {
       }
       client_leads: {
         Row: {
+          accountant_id: string | null
           business_type: string | null
           created_at: string
           documents_per_month: string | null
+          email: string | null
           id: string
+          message: string | null
           name: string
           phone: string
+          status: string
         }
         Insert: {
+          accountant_id?: string | null
           business_type?: string | null
           created_at?: string
           documents_per_month?: string | null
+          email?: string | null
           id?: string
+          message?: string | null
           name: string
           phone: string
+          status?: string
         }
         Update: {
+          accountant_id?: string | null
           business_type?: string | null
           created_at?: string
           documents_per_month?: string | null
+          email?: string | null
           id?: string
+          message?: string | null
           name?: string
           phone?: string
+          status?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "client_leads_accountant_id_fkey"
+            columns: ["accountant_id"]
+            isOneToOne: false
+            referencedRelation: "accountant_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       consultations: {
         Row: {

@@ -1,40 +1,95 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Zap, ShieldCheck, Gift, ClipboardList, Mail, Handshake, Quote, CheckCircle2 } from 'lucide-react';
+import { Zap, ShieldCheck, Gift, ClipboardList, Mail, Handshake, Quote, CheckCircle2, AlertCircle } from 'lucide-react';
+
+type AccountantOption = {
+  id: string;
+  display_name: string | null;
+  location: string | null;
+  user_id: string;
+};
 
 export default function Klienti() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [accountants, setAccountants] = useState<AccountantOption[]>([]);
+  const [accQuery, setAccQuery] = useState('');
+  const [accFocused, setAccFocused] = useState(false);
+  const [selectedAcc, setSelectedAcc] = useState<AccountantOption | null>(null);
   const [form, setForm] = useState({
     name: '',
     phone: '',
+    email: '',
+    message: '',
     business_type: '',
     documents_per_month: '',
   });
 
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from('accountant_profiles')
+        .select('id, display_name, location, user_id')
+        .eq('is_approved', true)
+        .order('display_name', { ascending: true });
+      setAccountants((data || []) as AccountantOption[]);
+    })();
+  }, []);
+
+  const matches = useMemo(() => {
+    const q = accQuery.trim().toLowerCase();
+    if (!q) return accountants.slice(0, 8);
+    return accountants
+      .filter(
+        (a) =>
+          (a.display_name || '').toLowerCase().includes(q) ||
+          (a.location || '').toLowerCase().includes(q),
+      )
+      .slice(0, 8);
+  }, [accountants, accQuery]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.phone) {
-      toast.error('Моля, попълнете име и телефон');
+    if (!form.name || !form.phone || !form.email) {
+      toast.error('Моля, попълнете име, телефон и имейл');
+      return;
+    }
+    if (accQuery.trim() && !selectedAcc) {
+      toast.error('Този профил не е регистриран като реален потребител на платформата.');
       return;
     }
     setLoading(true);
-    const { error } = await supabase.from('client_leads').insert([form]);
+    const payload = {
+      name: form.name,
+      phone: form.phone,
+      email: form.email,
+      message: form.message || null,
+      business_type: form.business_type || null,
+      documents_per_month: form.documents_per_month || null,
+      accountant_id: selectedAcc?.id ?? null,
+    };
+    const { error } = await supabase.from('client_leads').insert([payload as never]);
     setLoading(false);
     if (error) {
       toast.error('Възникна грешка. Моля, опитайте отново.');
       return;
     }
+    if (selectedAcc) {
+      toast.success(`Запитването е изпратено към ${selectedAcc.display_name}.`);
+    }
     setSubmitted(true);
-    setForm({ name: '', phone: '', business_type: '', documents_per_month: '' });
+    setForm({ name: '', phone: '', email: '', message: '', business_type: '', documents_per_month: '' });
+    setSelectedAcc(null);
+    setAccQuery('');
   };
 
   const scrollToForm = () => {
@@ -160,6 +215,7 @@ export default function Klienti() {
                         required
                       />
                     </div>
+                    <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="phone">Телефон *</Label>
                       <Input
@@ -170,6 +226,70 @@ export default function Klienti() {
                         placeholder="+359 ..."
                         required
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Имейл *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        placeholder="email@domain.bg"
+                        required
+                      />
+                    </div>
+                    </div>
+                    <div className="space-y-2 relative">
+                      <Label htmlFor="accountant">Изберете счетоводител (по име или град)</Label>
+                      <Input
+                        id="accountant"
+                        value={accQuery}
+                        onFocus={() => setAccFocused(true)}
+                        onBlur={() => setTimeout(() => setAccFocused(false), 150)}
+                        onChange={(e) => {
+                          setAccQuery(e.target.value);
+                          setSelectedAcc(null);
+                        }}
+                        placeholder="напр. Иван Петров или София"
+                      />
+                      {accFocused && accQuery.trim() && matches.length > 0 && !selectedAcc && (
+                        <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-md border bg-popover shadow-lg">
+                          {matches.map((a) => (
+                            <button
+                              key={a.id}
+                              type="button"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                setSelectedAcc(a);
+                                setAccQuery(`${a.display_name}${a.location ? ' — ' + a.location : ''}`);
+                                setAccFocused(false);
+                              }}
+                              className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-accent"
+                            >
+                              <span className="font-medium">{a.display_name || 'Без име'}</span>
+                              {a.location && (
+                                <span className="text-xs text-muted-foreground">{a.location}</span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {accFocused && accQuery.trim() && matches.length === 0 && (
+                        <div className="absolute z-20 mt-1 w-full rounded-md border bg-popover p-3 text-sm text-muted-foreground shadow-lg">
+                          Няма съвпадения между регистрираните счетоводители.
+                        </div>
+                      )}
+                      {accQuery.trim() && !selectedAcc && !accFocused && (
+                        <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                          <span>Този профил не е регистриран като реален потребител на платформата. Моля, изберете от списъка или оставете полето празно.</span>
+                        </div>
+                      )}
+                      {selectedAcc && (
+                        <p className="text-xs text-muted-foreground">
+                          ✓ Запитването ще бъде изпратено директно към <strong>{selectedAcc.display_name}</strong>.
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label>Тип бизнес</Label>
@@ -203,6 +323,16 @@ export default function Klienti() {
                           <SelectItem value="100+">Над 100</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="message">Кратко описание (по желание)</Label>
+                      <Textarea
+                        id="message"
+                        value={form.message}
+                        onChange={(e) => setForm({ ...form, message: e.target.value })}
+                        placeholder="Опишете накратко нуждите си..."
+                        rows={3}
+                      />
                     </div>
                     <Button type="submit" size="lg" className="w-full" disabled={loading}>
                       {loading ? 'Изпращане...' : 'Изпрати запитване'}
