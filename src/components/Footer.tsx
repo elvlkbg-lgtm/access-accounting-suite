@@ -1,6 +1,16 @@
 import { Calculator, Instagram, Facebook } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+const logSocialClick = (network: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const a = e.currentTarget;
+  console.log(`[social-click] ${network}`, {
+    href: a.href,
+    target: a.target,
+    opensInNewTab: a.target === '_blank',
+    rel: a.rel,
+  });
+};
+
 export default function Footer() {
   return (
     <footer className="border-t bg-card">
@@ -53,6 +63,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 aria-label="Instagram"
                 className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+                onClick={logSocialClick('Instagram (Footer)')}
               >
                 <Instagram className="h-5 w-5 pointer-events-none" style={{ color: '#E1306C' }} />
               </a>
@@ -62,6 +73,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 aria-label="Facebook"
                 className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+                onClick={logSocialClick('Facebook (Footer)')}
               >
                 <Facebook className="h-5 w-5 pointer-events-none" style={{ color: '#1877F2' }} />
               </a>

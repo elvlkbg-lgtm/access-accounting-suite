@@ -5,6 +5,16 @@ import { Calculator, Menu, X } from 'lucide-react';
 import { Instagram, Facebook } from 'lucide-react';
 import { useState } from 'react';
 
+const logSocialClick = (network: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const a = e.currentTarget;
+  console.log(`[social-click] ${network}`, {
+    href: a.href,
+    target: a.target,
+    opensInNewTab: a.target === '_blank',
+    rel: a.rel,
+  });
+};
+
 export default function Navbar() {
   const { user, hasRole, signOut } = useAuth();
   const navigate = useNavigate();
@@ -67,6 +77,7 @@ export default function Navbar() {
                   rel="noopener noreferrer"
                   aria-label="Instagram"
                   className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+                  onClick={logSocialClick('Instagram (Navbar/auth)')}
                 >
                   <Instagram className="h-5 w-5 pointer-events-none" style={{ color: '#E1306C' }} />
                 </a>
@@ -76,6 +87,7 @@ export default function Navbar() {
                   rel="noopener noreferrer"
                   aria-label="Facebook"
                   className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+                  onClick={logSocialClick('Facebook (Navbar/auth)')}
                 >
                   <Facebook className="h-5 w-5 pointer-events-none" style={{ color: '#1877F2' }} />
                 </a>
@@ -91,6 +103,7 @@ export default function Navbar() {
                   rel="noopener noreferrer"
                   aria-label="Instagram"
                   className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+                  onClick={logSocialClick('Instagram (Navbar/guest)')}
                 >
                   <Instagram className="h-5 w-5 pointer-events-none" style={{ color: '#E1306C' }} />
                 </a>
@@ -100,6 +113,7 @@ export default function Navbar() {
                   rel="noopener noreferrer"
                   aria-label="Facebook"
                   className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+                  onClick={logSocialClick('Facebook (Navbar/guest)')}
                 >
                   <Facebook className="h-5 w-5 pointer-events-none" style={{ color: '#1877F2' }} />
                 </a>
