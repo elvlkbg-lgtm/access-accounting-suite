@@ -60,24 +60,48 @@ export default function Navbar() {
               <Link to={getDashboardPath()} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Табло
               </Link>
-              <div className="flex items-center gap-2">
-              <a href="https://www.instagram.com/accountpro.1/?hl=bg" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
-                  <Instagram className="h-5 w-5" style={{ color: '#E1306C' }} />
+              <div className="flex items-center gap-1">
+                <a
+                  href="https://www.instagram.com/accountpro.1/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+                >
+                  <Instagram className="h-5 w-5 pointer-events-none" style={{ color: '#E1306C' }} />
                 </a>
-                <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
-                  <Facebook className="h-5 w-5" style={{ color: '#1877F2' }} />
+                <a
+                  href="https://www.facebook.com/profile.php?id=61588642016359"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+                >
+                  <Facebook className="h-5 w-5 pointer-events-none" style={{ color: '#1877F2' }} />
                 </a>
               </div>
               <Button variant="outline" size="sm" onClick={handleSignOut}>Изход</Button>
             </>
           ) : (
             <>
-              <div className="flex items-center gap-2">
-              <a href="https://www.instagram.com/accountpro.1/?hl=bg" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
-                  <Instagram className="h-5 w-5" style={{ color: '#E1306C' }} />
+              <div className="flex items-center gap-1">
+                <a
+                  href="https://www.instagram.com/accountpro.1/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+                >
+                  <Instagram className="h-5 w-5 pointer-events-none" style={{ color: '#E1306C' }} />
                 </a>
-                <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
-                  <Facebook className="h-5 w-5" style={{ color: '#1877F2' }} />
+                <a
+                  href="https://www.facebook.com/profile.php?id=61588642016359"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+                >
+                  <Facebook className="h-5 w-5 pointer-events-none" style={{ color: '#1877F2' }} />
                 </a>
               </div>
               <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Вход</Button>
