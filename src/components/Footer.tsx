@@ -47,11 +47,23 @@ export default function Footer() {
               <li>ул. „Цар Освободител" 15, София</li>
             </ul>
             <div className="mt-4 flex gap-3">
-              <a href="https://www.instagram.com/accountpro.1/?hl=bg" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
-                <Instagram className="h-5 w-5" style={{ color: '#E1306C' }} />
+              <a
+                href="https://www.instagram.com/accountpro.1/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+              >
+                <Instagram className="h-5 w-5 pointer-events-none" style={{ color: '#E1306C' }} />
               </a>
-              <a href="https://www.facebook.com/profile.php?id=61588642016359" target="_blank" rel="noopener noreferrer" className="transition-transform hover:scale-110">
-                <Facebook className="h-5 w-5" style={{ color: '#1877F2' }} />
+              <a
+                href="https://www.facebook.com/profile.php?id=61588642016359"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="inline-flex items-center justify-center p-2 rounded-md transition-transform hover:scale-110 cursor-pointer"
+              >
+                <Facebook className="h-5 w-5 pointer-events-none" style={{ color: '#1877F2' }} />
               </a>
             </div>
             <div className="mt-4 overflow-hidden rounded-lg border">
