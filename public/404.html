@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting…</title>
+    <script>
+      // GitHub Pages SPA redirect.
+      // Stores the requested path in sessionStorage and redirects to the
+      // app root, where index.html restores the URL via History API so
+      // React Router can handle it.
+      (function () {
+        var basePath = "/access-accounting-/";
+        var l = window.location;
+        var path = l.pathname + l.search + l.hash;
+        try { sessionStorage.setItem("spa-redirect", path); } catch (e) {}
+        l.replace(l.origin + basePath);
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

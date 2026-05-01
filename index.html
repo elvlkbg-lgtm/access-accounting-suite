@@ -21,6 +21,20 @@
 
   <body>
     <div id="root"></div>
+    <script>
+      // Restore deep-link path saved by 404.html (GitHub Pages SPA fallback).
+      (function () {
+        try {
+          var redirect = sessionStorage.getItem("spa-redirect");
+          if (redirect) {
+            sessionStorage.removeItem("spa-redirect");
+            if (redirect !== window.location.pathname + window.location.search + window.location.hash) {
+              window.history.replaceState(null, "", redirect);
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
