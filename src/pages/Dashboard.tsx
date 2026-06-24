@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import {
   Search, FileText, MessageCircle, ClipboardList, Upload,
-  FolderOpen, User, Briefcase, ExternalLink
+  FolderOpen, User, Briefcase, ExternalLink, Shield, Users, BarChart3
 } from 'lucide-react';
 
 const QUICK_ACTIONS_CLIENT = [
@@ -26,6 +26,13 @@ const QUICK_ACTIONS_ACCOUNTANT = [
   { icon: ExternalLink, label: 'НАП / НОИ', path: '/accountant?tab=contacts', color: 'text-primary' },
 ];
 
+const QUICK_ACTIONS_ADMIN = [
+  { icon: Users, label: 'Потребители', path: '/admin?tab=users', color: 'text-primary' },
+  { icon: Shield, label: 'Одобрения', path: '/admin?tab=approvals', color: 'text-primary' },
+  { icon: ClipboardList, label: 'Заявки', path: '/admin?tab=requests', color: 'text-primary' },
+  { icon: BarChart3, label: 'Статистика', path: '/admin', color: 'text-primary' },
+];
+
 export default function Dashboard() {
   const { user, hasRole } = useAuth();
   const isMobile = useIsMobile();
@@ -36,8 +43,19 @@ export default function Dashboard() {
     return null;
   }
 
+  const isAdmin = hasRole('admin');
   const isAccountant = hasRole('accountant');
-  const actions = isAccountant ? QUICK_ACTIONS_ACCOUNTANT : QUICK_ACTIONS_CLIENT;
+  const actions = isAdmin
+    ? QUICK_ACTIONS_ADMIN
+    : isAccountant
+      ? QUICK_ACTIONS_ACCOUNTANT
+      : QUICK_ACTIONS_CLIENT;
+  const roleLabel = isAdmin ? 'Администратор' : isAccountant ? 'Счетоводител' : 'Клиент';
+  const subtitle = isAdmin
+    ? 'Управлявайте платформата и потребителите'
+    : isAccountant
+      ? 'Управлявайте вашите клиенти и услуги'
+      : 'Какво желаете да направите?';
 
   return (
     <div className="min-h-screen bg-background">
@@ -47,9 +65,8 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold">
             Здравейте{user.user_metadata?.full_name ? `, ${user.user_metadata.full_name}` : ''}!
           </h1>
-          <p className="text-muted-foreground">
-            {isAccountant ? 'Управлявайте вашите клиенти и услуги' : 'Какво желаете да направите?'}
-          </p>
+          <p className="text-sm font-medium text-primary">{roleLabel}</p>
+          <p className="text-muted-foreground">{subtitle}</p>
         </div>
 
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3">
