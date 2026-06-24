@@ -19,7 +19,7 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
       toast.error(error.message);
@@ -29,9 +29,14 @@ export default function Login() {
       if (isMobile) {
         navigate('/dashboard');
       } else {
-        const { data } = await supabase.from('user_roles').select('role').limit(1).single();
-        if (data?.role === 'admin') navigate('/admin');
-        else if (data?.role === 'accountant') navigate('/accountant');
+        const userId = signInData.user?.id;
+        const { data } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId as string);
+        const roles = (data ?? []).map((r) => r.role);
+        if (roles.includes('admin')) navigate('/admin');
+        else if (roles.includes('accountant')) navigate('/accountant');
         else navigate('/client');
       }
     }
